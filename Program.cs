@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
 {
@@ -6,6 +7,17 @@ namespace MaximEmmBots
     {
         private static async Task Main(string[] args)
         {
+            await new HostBuilder()
+                .UseEnvironment(EnvironmentName.Development)
+                .ConfigureAppConfiguration(builder =>
+                {
+                    
+                })
+                .ConfigureServices(services =>
+                {
+                    
+                })
+                .RunConsoleAsync();
         }
     }
 }
