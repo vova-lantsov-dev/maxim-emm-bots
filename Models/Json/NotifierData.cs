@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace MaximEmmBots.Models.ReviewGrabberBot.Json
+namespace MaximEmmBots.Models.Json
 {
     internal sealed class NotifierData
     {
