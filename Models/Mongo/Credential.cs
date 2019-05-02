@@ -1,6 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MaximEmmBots.Models.ReviewGrabberBot.Mongo
+namespace MaximEmmBots.Models.Mongo
 {
     [BsonIgnoreExtraElements]
     internal sealed class Credential
