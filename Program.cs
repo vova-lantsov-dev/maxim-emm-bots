@@ -1,5 +1,6 @@
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using System.Threading.Tasks;
+using MaximEmmBots.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
@@ -12,7 +13,7 @@ namespace MaximEmmBots
                 .UseEnvironment(EnvironmentName.Development)
                 .ConfigureServices(services =>
                 {
-                    
+                    services.AddSingleton<Context>();
                 })
                 .RunConsoleAsync();
         }
