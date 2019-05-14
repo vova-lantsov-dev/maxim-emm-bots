@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using System.IO;
+using System.Threading.Tasks;
+using MaximEmmBots.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
@@ -8,16 +9,13 @@ namespace MaximEmmBots
     {
         private static async Task Main(string[] args)
         {
+            var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
+            var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
+            
             await new HostBuilder()
-                .UseEnvironment(EnvironmentName.Development)
-                .ConfigureAppConfiguration(builder =>
-                {
-                    builder.AddEnvironmentVariables("TELEGRAM_BOTS_");
-                })
-                .ConfigureServices(services =>
-                {
-                    
-                })
+                .UseEnvironment(Environments.Development)
+                .ConfigureServices(serviceCollection => serviceCollection.AddServices(data))
+                .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
         }
     }

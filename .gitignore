@@ -5,3 +5,4 @@ Properties/
 .vs/
 .vscode/
 *.user
+settings.json
