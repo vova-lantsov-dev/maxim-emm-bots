@@ -9,18 +9,16 @@ namespace MaximEmmBots.Serializers
     {
         public override int Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            // ReSharper disable once SwitchStatementMissingSomeCases
-            switch (context.Reader.CurrentBsonType)
+            // TODO local scope visibility bug (watching https://youtrack.jetbrains.com/issue/RIDER-27874)
+            int ParseString(string text) => int.TryParse(text, out var value) ? value : -1;
+            
+            return context.Reader.CurrentBsonType switch
             {
-                case BsonType.Int32:
-                    return context.Reader.ReadInt32();
-                case BsonType.String:
-                    return int.TryParse(context.Reader.ReadString(), out var num) ? num : -1;
-                case BsonType.Double:
-                    return (int) context.Reader.ReadDouble();
-                default:
-                    throw new FormatException($"The type of the rating value is {context.Reader.CurrentBsonType}");
-            }
+                BsonType.Int32 => context.Reader.ReadInt32(),
+                BsonType.String => ParseString(context.Reader.ReadString()),
+                BsonType.Double => (int) context.Reader.ReadDouble(),
+                _ => throw new FormatException($"The type of the rating value is {context.Reader.CurrentBsonType}")
+            };
         }
     }
 }
