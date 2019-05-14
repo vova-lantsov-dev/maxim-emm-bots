@@ -2,6 +2,7 @@ using MaximEmmBots.Models.Json;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.DependencyInjection;
 using MaximEmmBots.Services;
+using MaximEmmBots.Services.ReviewGrabberBot;
 using Telegram.Bot;
 
 namespace MaximEmmBots.Extensions
@@ -14,8 +15,11 @@ namespace MaximEmmBots.Extensions
 
             services.AddSingleton(new TelegramBotClient(data.Bot.Token));
             services.AddSingleton<Context>();
+            
             services.AddSingleton<BotHandler>();
             services.AddHostedService<BotHandlerService>();
+
+            services.AddHostedService<WorkerService>();
         }
     }
 }
