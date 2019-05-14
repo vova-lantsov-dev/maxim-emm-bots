@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -10,10 +10,6 @@ namespace MaximEmmBots
         {
             await new HostBuilder()
                 .UseEnvironment(EnvironmentName.Development)
-                .ConfigureAppConfiguration(builder =>
-                {
-                    builder.AddEnvironmentVariables("TELEGRAM_BOTS_");
-                })
                 .ConfigureServices(services =>
                 {
                     
