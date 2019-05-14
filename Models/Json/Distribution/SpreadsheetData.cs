@@ -1,16 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace MaximEmmBots.Models.Json.Distribution
 {
     internal sealed class SpreadsheetData
     {
-        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
         
-        [JsonProperty("client_id", Required = Required.Always)]
+        [JsonPropertyName("client_id")]
         public string ClientId { get; set; }
         
-        [JsonProperty("client_secret", Required = Required.Always)]
+        [JsonPropertyName("client_secret")]
         public string ClientSecret { get; set; }
     }
 }
