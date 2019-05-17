@@ -5,7 +5,7 @@ using MaximEmmBots.Options;
 using Microsoft.Extensions.DependencyInjection;
 using MaximEmmBots.Services;
 using Telegram.Bot;
-using ReviewBotWorkerService = MaximEmmBots.Services.ReviewGrabberBot.WorkerService;
+using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 
 namespace MaximEmmBots.Extensions
