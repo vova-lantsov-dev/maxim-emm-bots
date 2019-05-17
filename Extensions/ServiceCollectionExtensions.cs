@@ -22,13 +22,13 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton(new SheetsService(googleInitializer));
             services.AddSingleton<DistributionService>();
             services.AddSingleton<BotHandler>();
-            services.AddHostedService<BotHandlerService>();
         }
 
         internal static void AddWorkerServices(this IServiceCollection services)
         {
             services.AddHostedService<ReviewBotWorkerService>();
             services.AddHostedService<DistributionBotWorkerService>();
+            services.AddHostedService<BotHandlerService>();
         }
     }
 }
