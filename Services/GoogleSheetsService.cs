@@ -36,10 +36,10 @@ namespace MaximEmmBots.Services
             _data = options.Value.Data;
         }
         
-        private async Task<ValueRange> GetValueRangeAsync(string range, CancellationToken stoppingToken)
+        private async Task<ValueRange> GetValueRangeAsync(string sId, string range, CancellationToken stoppingToken)
         {
             _logger.LogDebug("Range is {0}", range);
-            var request = _distributionService.Spreadsheets.Values.Get(_data.Distribution.Spreadsheet.Id, range);
+            var request = _distributionService.Spreadsheets.Values.Get(sId, range);
 
             try
             {
@@ -63,7 +63,7 @@ namespace MaximEmmBots.Services
             var monthName = Culture.DateTimeFormat.GetMonthName(tomorrow.Month);
             
             var range = $"{monthName} {tomorrow:MM/yyyy}!$A$1:$YY";
-            var response = await GetValueRangeAsync(range, stoppingToken);
+            var response = await GetValueRangeAsync(_data.Distribution.Spreadsheet.Id, range, stoppingToken);
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (userId > 0)
