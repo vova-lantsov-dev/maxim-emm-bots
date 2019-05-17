@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using Google.Apis.Services;
 using MaximEmmBots.Extensions;
 using Microsoft.Extensions.Hosting;
 
@@ -11,10 +12,21 @@ namespace MaximEmmBots
         {
             var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
             var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
+
+            var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.Distribution.Spreadsheet);
+            var googleInitializer = new BaseClientService.Initializer
+            {
+                ApplicationName = "Telegram Bot",
+                HttpClientInitializer = googleCredential
+            };
             
             await new HostBuilder()
                 .UseEnvironment(Environments.Development)
-                .ConfigureServices(serviceCollection => serviceCollection.AddServices(data))
+                .ConfigureServices(serviceCollection =>
+                {
+                    serviceCollection.AddGeneralServices(data, googleInitializer);
+                    serviceCollection.AddWorkerServices();
+                })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
         }
