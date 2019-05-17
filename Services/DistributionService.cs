@@ -96,13 +96,14 @@ namespace MaximEmmBots.Services
                 var i = 1;
                 for (; i < dayText.Length; i++)
                 {
+                    if (infoText.Length == 2)
+                        break;
+                    
                     var character = dayText[i];
                     if (!char.IsDigit(character))
                         break;
 
                     infoText.Append(character);
-                    if (infoText.Length == 2)
-                        break;
                 }
                 
                 infoText.Append(":00");
