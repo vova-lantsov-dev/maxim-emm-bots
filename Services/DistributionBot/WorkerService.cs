@@ -7,7 +7,7 @@ namespace MaximEmmBots.Services.DistributionBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly DistributionService _distributionService;
+        private readonly GoogleSheetsService _googleSheetsService;
         
         private static readonly TimeSpan Time1D = new TimeSpan(1, 0, 0, 0);
         private static readonly TimeSpan Time20H = new TimeSpan(20, 0, 0);
@@ -16,14 +16,14 @@ namespace MaximEmmBots.Services.DistributionBot
         {
             get
             {
-                var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, DistributionService.ZoneInfo).TimeOfDay;
+                var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, GoogleSheetsService.ZoneInfo).TimeOfDay;
                 return currentTime <= Time20H ? Time20H - currentTime : Time20H + (Time1D - currentTime);
             }
         }
         
-        public WorkerService(DistributionService distributionService)
+        public WorkerService(GoogleSheetsService googleSheetsService)
         {
-            _distributionService = distributionService;
+            _googleSheetsService = googleSheetsService;
         }
         
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,7 +32,7 @@ namespace MaximEmmBots.Services.DistributionBot
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _distributionService.ExecuteAsync(stoppingToken);
+                await _googleSheetsService.ExecuteAsync(stoppingToken);
                 await Task.Delay(StartDelay, stoppingToken);
             }
         }

@@ -20,7 +20,7 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton(new TelegramBotClient(data.Bot.Token));
             services.AddSingleton<Context>();
             services.AddSingleton(new SheetsService(googleInitializer));
-            services.AddSingleton<DistributionService>();
+            services.AddSingleton<GoogleSheetsService>();
             services.AddSingleton<BotHandler>();
         }
 
