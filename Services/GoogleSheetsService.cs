@@ -17,18 +17,18 @@ using TimeZoneConverter;
 
 namespace MaximEmmBots.Services
 {
-    internal sealed class DistributionService
+    internal sealed class GoogleSheetsService
     {
         private readonly SheetsService _distributionService;
         private readonly TelegramBotClient _client;
         private readonly Data _data;
-        private readonly ILogger<DistributionService> _logger;
+        private readonly ILogger<GoogleSheetsService> _logger;
         
         internal static readonly TimeZoneInfo ZoneInfo = TZConvert.GetTimeZoneInfo("Russian Standard Time");
         private static readonly CultureInfo Culture = new CultureInfo("ru-RU");
         
-        public DistributionService(IOptions<DataOptions> options, TelegramBotClient client,
-            SheetsService distributionService, ILogger<DistributionService> logger)
+        public GoogleSheetsService(IOptions<DataOptions> options, TelegramBotClient client,
+            SheetsService distributionService, ILogger<GoogleSheetsService> logger)
         {
             _client = client;
             _distributionService = distributionService;
