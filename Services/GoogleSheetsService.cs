@@ -36,11 +36,8 @@ namespace MaximEmmBots.Services
             _data = options.Value.Data;
         }
         
-        private async Task<ValueRange> GetValueRangeAsync(DateTime tomorrow, CancellationToken stoppingToken)
+        private async Task<ValueRange> GetValueRangeAsync(string range, CancellationToken stoppingToken)
         {
-            var monthName = Culture.DateTimeFormat.GetMonthName(tomorrow.Month);
-            
-            var range = $"{monthName} {tomorrow:MM/yyyy}!$A$1:$YY";
             _logger.LogDebug("Range is {0}", range);
             var request = _distributionService.Spreadsheets.Values.Get(_data.Distribution.Spreadsheet.Id, range);
 
@@ -54,12 +51,19 @@ namespace MaximEmmBots.Services
                 return null;
             }
         }
+
+        internal async Task ExecuteForGuestsBotAsync(CancellationToken stoppingToken)
+        {
+            throw new NotImplementedException();
+        }
         
-        internal async Task ExecuteAsync(CancellationToken stoppingToken, int userId = 0)
+        internal async Task ExecuteForDistributionBotAsync(CancellationToken stoppingToken, int userId = 0)
         {
             var tomorrow = TimeZoneInfo.ConvertTime(DateTime.UtcNow, ZoneInfo).AddDays(1d);
-
-            var response = await GetValueRangeAsync(tomorrow, stoppingToken);
+            var monthName = Culture.DateTimeFormat.GetMonthName(tomorrow.Month);
+            
+            var range = $"{monthName} {tomorrow:MM/yyyy}!$A$1:$YY";
+            var response = await GetValueRangeAsync(range, stoppingToken);
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (userId > 0)
