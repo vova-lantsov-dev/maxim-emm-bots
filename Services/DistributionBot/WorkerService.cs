@@ -32,7 +32,7 @@ namespace MaximEmmBots.Services.DistributionBot
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _googleSheetsService.ExecuteAsync(stoppingToken);
+                await _googleSheetsService.ExecuteForDistributionBotAsync(stoppingToken);
                 await Task.Delay(StartDelay, stoppingToken);
             }
         }
