@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using MaximEmmBots.Models.Json.Distribution;
+using MaximEmmBots.Models.Json.DistributionBot;
+using MaximEmmBots.Models.Json.GuestsBot;
 using MaximEmmBots.Models.Json.ReviewBot;
 
 namespace MaximEmmBots.Models.Json
@@ -10,10 +11,14 @@ namespace MaximEmmBots.Models.Json
         
         public BotData Bot { get; set; }
         
-        public DatabaseData Database { get; set; }
+        public string MongoConnectionString { get; set; }
         
-        public DistributionData Distribution { get; set; }
+        public GoogleCredentials GoogleCredentials { get; set; }
+        
+        public DistributionBotData DistributionBot { get; set; }
         
         public ReviewBotData ReviewBot { get; set; }
+        
+        public GuestsBotData GuestsBot { get; set; }
     }
 }
