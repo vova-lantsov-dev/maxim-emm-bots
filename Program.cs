@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.Services;
 using MaximEmmBots.Extensions;
+using MaximEmmBots.Models.Json;
 using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
@@ -12,6 +15,12 @@ namespace MaximEmmBots
         {
             var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
             var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
+
+            var languageModels = SettingsExtensions.LoadLanguagesAsync(Directory.GetCurrentDirectory(),
+                data.Restaurants.Select(r => r.Culture.Name).Distinct());
+            var languageDictionary = new Dictionary<string, LocalizationModel>();
+            await foreach (var (name, model) in languageModels)
+                languageDictionary[name] = model;
 
             var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.GoogleCredentials);
             var googleInitializer = new BaseClientService.Initializer
@@ -24,8 +33,11 @@ namespace MaximEmmBots
                 .UseEnvironment(Environments.Development)
                 .ConfigureServices(serviceCollection =>
                 {
-                    serviceCollection.AddGeneralServices(data, googleInitializer);
+                    serviceCollection.AddGeneralServices(data);
+                    serviceCollection.AddGoogleServices(googleInitializer);
+                    serviceCollection.AddBotServices(data.Bot.Token);
                     serviceCollection.AddWorkerServices();
+                    serviceCollection.AddLocalizationServices(languageDictionary);
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
