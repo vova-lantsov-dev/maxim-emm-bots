@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -42,9 +43,11 @@ namespace MaximEmmBots.Extensions
         }
 
         internal static void AddLocalizationServices(this IServiceCollection services,
-            IReadOnlyDictionary<string, LocalizationModel> localizationModels)
+            IReadOnlyDictionary<string, LocalizationModel> localizationModels,
+            IReadOnlyDictionary<string, TimeZoneInfo> timeZoneDictionary)
         {
             services.AddSingleton(localizationModels);
+            services.AddSingleton(timeZoneDictionary);
         }
     }
 }

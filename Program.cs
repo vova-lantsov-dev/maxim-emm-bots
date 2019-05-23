@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Google.Apis.Services;
 using MaximEmmBots.Extensions;
 using MaximEmmBots.Models.Json;
 using Microsoft.Extensions.Hosting;
+using TimeZoneConverter;
 
 namespace MaximEmmBots
 {
@@ -21,6 +23,10 @@ namespace MaximEmmBots
             var languageDictionary = new Dictionary<string, LocalizationModel>();
             await foreach (var (name, model) in languageModels)
                 languageDictionary[name] = model;
+            
+            var timeZoneDictionary = new Dictionary<string, TimeZoneInfo>();
+            foreach (var timeZone in data.Restaurants.Select(r => r.Culture.TimeZone).Distinct())
+                timeZoneDictionary[timeZone] = TZConvert.GetTimeZoneInfo(timeZone);
 
             var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.GoogleCredentials);
             var googleInitializer = new BaseClientService.Initializer
@@ -37,7 +43,7 @@ namespace MaximEmmBots
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddBotServices(data.Bot.Token);
                     serviceCollection.AddWorkerServices();
-                    serviceCollection.AddLocalizationServices(languageDictionary);
+                    serviceCollection.AddLocalizationServices(languageDictionary, timeZoneDictionary);
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();

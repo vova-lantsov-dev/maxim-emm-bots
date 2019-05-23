@@ -5,5 +5,7 @@ namespace MaximEmmBots.Models.Json
         public string Name { get; set; }
         
         public string DateFormat { get; set; }
+        
+        public string TimeZone { get; set; }
     }
 }
