@@ -13,7 +13,7 @@ namespace MaximEmmBots
             var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
             var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
 
-            var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.Distribution.Spreadsheet);
+            var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.GoogleCredentials);
             var googleInitializer = new BaseClientService.Initializer
             {
                 ApplicationName = "Telegram Bot",
