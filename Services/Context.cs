@@ -13,8 +13,7 @@ namespace MaximEmmBots.Services
         
         public Context(IOptions<DataOptions> options)
         {
-            var data = options.Value.Data.Database;
-            var mongoClient = new MongoClient(data.ConnectionString);
+            var mongoClient = new MongoClient(options.Value.Data.MongoConnectionString);
             var db = mongoClient.GetDatabase("reviewbot");
 
             Reviews = db.GetCollection<Review>("reviews");
