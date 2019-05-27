@@ -28,9 +28,6 @@ namespace MaximEmmBots
                 languageDictionary[name] = model;
                 cultureDictionary[name] = new CultureInfo(name);
             }
-            
-            if (!cultureDictionary.ContainsKey("ru-RU"))
-                cultureDictionary["ru-RU"] = new CultureInfo("ru-RU");
 
             var timeZoneDictionary = new Dictionary<string, TimeZoneInfo>();
             foreach (var timeZone in data.Restaurants.Select(r => r.Culture.TimeZone).Distinct())
