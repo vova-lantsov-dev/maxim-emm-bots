@@ -6,8 +6,10 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Options;
-using Microsoft.Extensions.DependencyInjection;
 using MaximEmmBots.Services;
+using MaximEmmBots.Services.DistributionBot;
+using MaximEmmBots.Services.GuestsBot;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
@@ -31,6 +33,8 @@ namespace MaximEmmBots.Extensions
         {
             services.AddSingleton(new SheetsService(googleInitializer));
             services.AddSingleton<GoogleSheetsService>();
+            services.AddSingleton<GuestsBotSheetsService>();
+            services.AddSingleton<DistributionBotSheetsService>();
         }
 
         internal static void AddWorkerServices(this IServiceCollection services)

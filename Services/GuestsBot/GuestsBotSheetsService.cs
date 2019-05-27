@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Mongo;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Telegram.Bot;
@@ -25,7 +26,7 @@ namespace MaximEmmBots.Services.GuestsBot
         private readonly GoogleSheetsService _googleSheetsService;
 
         public GuestsBotSheetsService(ITelegramBotClient client,
-            Data data,
+            IOptions<Data> dataOptions,
             Context context,
             ILogger<GoogleSheetsService> logger,
             IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
@@ -33,7 +34,7 @@ namespace MaximEmmBots.Services.GuestsBot
             GoogleSheetsService googleSheetsService)
         {
             _client = client;
-            _data = data;
+            _data = dataOptions.Value;
             _context = context;
             _logger = logger;
             _timeZones = timeZones;
