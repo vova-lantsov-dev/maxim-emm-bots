@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
+using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Telegram.Bot;
@@ -19,17 +21,18 @@ namespace MaximEmmBots.Services
 {
     internal sealed class BotHandler : IUpdateHandler
     {
-        private readonly TelegramBotClient _client;
+        private readonly ITelegramBotClient _client;
         private readonly List<Restaurant> _restaurants;
         private readonly Context _context;
         private readonly ILogger<BotHandler> _logger;
         private readonly HttpClient _httpClient;
         
-        public BotHandler(ILogger<BotHandler> logger, TelegramBotClient client, List<Restaurant> restaurants, Context context, HttpClient httpClient)
+        public BotHandler(ILogger<BotHandler> logger, ITelegramBotClient client, IOptions<DataOptions> dataOptions,
+            Context context, HttpClient httpClient)
         {
             _logger = logger;
             _client = client;
-            _restaurants = restaurants;
+            _restaurants = dataOptions.Value.Data.Restaurants;
             _context = context;
             _httpClient = httpClient;
         }

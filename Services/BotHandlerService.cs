@@ -9,9 +9,9 @@ namespace MaximEmmBots.Services
     internal sealed class BotHandlerService : BackgroundService
     {
         private readonly IUpdateHandler _updateHandler;
-        private readonly TelegramBotClient _client;
+        private readonly ITelegramBotClient _client;
         
-        public BotHandlerService(IUpdateHandler updateHandler, TelegramBotClient client)
+        public BotHandlerService(IUpdateHandler updateHandler, ITelegramBotClient client)
         {
             _updateHandler = updateHandler;
             _client = client;
