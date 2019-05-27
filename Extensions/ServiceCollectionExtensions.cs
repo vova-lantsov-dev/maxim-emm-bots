@@ -26,6 +26,7 @@ namespace MaximEmmBots.Extensions
 
             services.AddSingleton<Context>();
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<ChartsService>();
         }
 
         internal static void AddGoogleServices(this IServiceCollection services,
