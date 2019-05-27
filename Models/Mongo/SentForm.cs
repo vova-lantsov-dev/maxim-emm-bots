@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MaximEmmBots.Models.Mongo
 {
-    internal sealed class SentCounter
+    internal sealed class SentForm
     {
         public ObjectId Id { get; set; }
         
