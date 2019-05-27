@@ -1,4 +1,4 @@
-namespace MaximEmmBots.Models.Json.GuestsBot
+namespace MaximEmmBots.Models.Json
 {
     internal sealed class GuestsBotData
     {
