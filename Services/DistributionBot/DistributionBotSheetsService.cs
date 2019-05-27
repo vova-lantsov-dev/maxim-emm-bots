@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -23,7 +24,7 @@ namespace MaximEmmBots.Services.DistributionBot
         private readonly GoogleSheetsService _googleSheetsService;
 
         public DistributionBotSheetsService(ITelegramBotClient client,
-            Data data,
+            IOptions<Data> dataOptions,
             ILogger<GoogleSheetsService> logger,
             IReadOnlyDictionary<string, LocalizationModel> localizationModels,
             IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
@@ -31,7 +32,7 @@ namespace MaximEmmBots.Services.DistributionBot
             GoogleSheetsService googleSheetsService)
         {
             _client = client;
-            _data = data;
+            _data = dataOptions.Value;
             _logger = logger;
             _localizationModels = localizationModels;
             _timeZones = timeZones;
