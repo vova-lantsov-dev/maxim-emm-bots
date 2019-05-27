@@ -10,6 +10,7 @@ namespace MaximEmmBots.Services
         internal readonly IMongoCollection<Review> Reviews;
         internal readonly IMongoCollection<GoogleReviewMessage> GoogleReviewMessages;
         internal readonly IMongoCollection<Credential> GoogleCredentials;
+        internal readonly IMongoCollection<SentCounter> SentCounters;
         
         public Context(IOptions<DataOptions> options)
         {
@@ -19,6 +20,7 @@ namespace MaximEmmBots.Services
             Reviews = db.GetCollection<Review>("reviews");
             GoogleReviewMessages = db.GetCollection<GoogleReviewMessage>(nameof(GoogleReviewMessages));
             GoogleCredentials = db.GetCollection<Credential>("credentials");
+            SentCounters = db.GetCollection<SentCounter>(nameof(SentCounters));
         }
     }
 }

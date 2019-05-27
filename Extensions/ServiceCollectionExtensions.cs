@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net.Http;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
@@ -11,6 +12,7 @@ using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
+using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
 
 namespace MaximEmmBots.Extensions
 {
@@ -21,6 +23,7 @@ namespace MaximEmmBots.Extensions
             services.Configure<DataOptions>(options => options.Data = data);
 
             services.AddSingleton<Context>();
+            services.AddSingleton<HttpClient>();
         }
 
         internal static void AddGoogleServices(this IServiceCollection services,
@@ -32,15 +35,16 @@ namespace MaximEmmBots.Extensions
 
         internal static void AddWorkerServices(this IServiceCollection services)
         {
-            services.AddHostedService<ReviewBotWorkerService>();
-            services.AddHostedService<DistributionBotWorkerService>();
+            //services.AddHostedService<ReviewBotWorkerService>();
+            //services.AddHostedService<DistributionBotWorkerService>();
+            services.AddHostedService<GuestsBotWorkerService>();
         }
 
         internal static void AddBotServices(this IServiceCollection services, string botToken)
         {
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
             services.AddSingleton<IUpdateHandler, BotHandler>();
-            services.AddHostedService<BotHandlerService>();
+            //services.AddHostedService<BotHandlerService>();
         }
 
         internal static void AddLocalizationServices(this IServiceCollection services,

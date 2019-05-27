@@ -15,6 +15,8 @@ namespace MaximEmmBots.Models.Json
         public string PlaceInfo { get; set; }
         
         public CultureData Culture { get; set; }
+        
+        public GuestsBotData GuestsBot { get; set; }
 
         public Dictionary<string, string> Urls { get; set; }
     }

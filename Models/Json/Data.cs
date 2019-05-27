@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MaximEmmBots.Models.Json.DistributionBot;
-using MaximEmmBots.Models.Json.GuestsBot;
 using MaximEmmBots.Models.Json.ReviewBot;
 
 namespace MaximEmmBots.Models.Json

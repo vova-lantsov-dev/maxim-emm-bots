@@ -8,38 +8,52 @@ using System.Threading.Tasks;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Mongo;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using TimeZoneConverter;
 
 namespace MaximEmmBots.Services
 {
     internal sealed class GoogleSheetsService
     {
-        private readonly SheetsService _distributionService;
-        private readonly TelegramBotClient _client;
+        private readonly SheetsService _sheetsService;
+        private readonly ITelegramBotClient _client;
         private readonly Data _data;
+        private readonly Context _context;
         private readonly ILogger<GoogleSheetsService> _logger;
+        private readonly IReadOnlyDictionary<string, LocalizationModel> _localizationModels;
+        private readonly IReadOnlyDictionary<string, TimeZoneInfo> _timeZones;
+        private readonly IReadOnlyDictionary<string, CultureInfo> _cultures;
+
+        private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
         
-        internal static readonly TimeZoneInfo ZoneInfo = TZConvert.GetTimeZoneInfo("Russian Standard Time");
-        private static readonly CultureInfo Culture = new CultureInfo("ru-RU");
-        
-        public GoogleSheetsService(IOptions<DataOptions> options, TelegramBotClient client,
-            SheetsService distributionService, ILogger<GoogleSheetsService> logger)
+        public GoogleSheetsService(IOptions<DataOptions> options, ITelegramBotClient client,
+            SheetsService sheetsService, ILogger<GoogleSheetsService> logger,
+            IReadOnlyDictionary<string, LocalizationModel> localizationModels,
+            IReadOnlyDictionary<string, TimeZoneInfo> timeZones, IReadOnlyDictionary<string, CultureInfo> cultures,
+            Context context)
         {
             _client = client;
-            _distributionService = distributionService;
+            _sheetsService = sheetsService;
             _logger = logger;
+            _localizationModels = localizationModels;
+            _timeZones = timeZones;
+            _cultures = cultures;
+            _context = context;
             _data = options.Value.Data;
         }
         
         private async Task<ValueRange> GetValueRangeAsync(string sId, string range, CancellationToken stoppingToken)
         {
+            _logger.LogDebug("SpreadsheetId is {0}", sId);
             _logger.LogDebug("Range is {0}", range);
-            var request = _distributionService.Spreadsheets.Values.Get(sId, range);
+            
+            var request = _sheetsService.Spreadsheets.Values.Get(sId, range);
 
             try
             {
@@ -54,16 +68,73 @@ namespace MaximEmmBots.Services
 
         internal async Task ExecuteForGuestsBotAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            foreach (var restaurant in _data.Restaurants)
+            {
+                var spreadsheetId = $"{restaurant.GuestsBot.TableName}!$A$1:$YY";
+                var response = await GetValueRangeAsync(restaurant.GuestsBot.SpreadsheetId,
+                    spreadsheetId, stoppingToken);
+                if (response?.Values == null || response.Values.Count == 0)
+                {
+                    _logger.LogError("Spreadsheet value range is null or empty. Spreadsheet id: {0}", spreadsheetId);
+                    return;
+                }
+
+                var today = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZones[restaurant.Culture.TimeZone]).AddDays(-1d).Date;
+
+                var questions = response.Values[0].Select(questionColumn => questionColumn.ToString()).ToList();
+                
+                foreach (var row in response.Values.Skip(1))
+                {
+                    if (row.Count <= 1)
+                        continue;
+
+                    if (!DateTime.TryParseExact(row[0].ToString(), "G", RussianCulture,
+                            DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
+                        continue;
+                    
+                    var searchDate = rowDate.ToString("d", RussianCulture);
+                    var searchTime = rowDate.ToString("T", RussianCulture);
+                    
+                    var filter = Builders<SentCounter>.Filter.And(
+                        Builders<SentCounter>.Filter.Eq(c => c.Date, searchDate),
+                                    new BsonDocument("SentTimes", new BsonDocument("$elemMatch", new BsonDocument("$eq", searchTime))),
+                                    Builders<SentCounter>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
+                    
+                    try
+                    {
+                        if (await _context.SentCounters.Find(filter).AnyAsync(stoppingToken))
+                            continue;
+                    
+                        await _context.SentCounters.UpdateOneAsync(filter, Builders<SentCounter>.Update
+                                .Push(c => c.SentTimes, searchTime)
+                                .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
+                            new UpdateOptions {IsUpsert = true}, stoppingToken);
+
+                        await _client.SendTextMessageAsync(restaurant.ChatId,
+                            string.Join('\n', questions.Take(row.Count).Select((q, i) =>
+                            {
+                                var answer = row[i];
+                                return $"<b>{q}</b>: {answer}";
+                            }).Prepend($"<b>{restaurant.Name}</b>")), ParseMode.Html, cancellationToken: stoppingToken);
+                    }
+                    catch (Exception e)
+                    {
+                        // ignored
+                    }
+                }
+            }
         }
         
-        internal async Task ExecuteForDistributionBotAsync(CancellationToken stoppingToken, int userId = 0)
+        internal async Task ExecuteForDistributionBotAsync(string timeZoneName, string cultureName,
+            CancellationToken stoppingToken, int userId = 0)
         {
-            var tomorrow = TimeZoneInfo.ConvertTime(DateTime.UtcNow, ZoneInfo).AddDays(1d);
-            var monthName = Culture.DateTimeFormat.GetMonthName(tomorrow.Month);
+            var tomorrow = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZones[timeZoneName]).AddDays(1d);
+            var culture = _cultures[cultureName];
+            var monthName = culture.DateTimeFormat.GetMonthName(tomorrow.Month);
+            var model = _localizationModels[cultureName];
             
             var range = $"{monthName} {tomorrow:MM/yyyy}!$A$1:$YY";
-            var response = await GetValueRangeAsync(_data.Distribution.Spreadsheet.Id, range, stoppingToken);
+            var response = await GetValueRangeAsync(_data.DistributionBot.SpreadsheetId, range, stoppingToken);
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (userId > 0)
@@ -73,7 +144,7 @@ namespace MaximEmmBots.Services
             }
 
             var day = tomorrow.Day;
-            var dateText = tomorrow.ToString("dd MMMM yyyy", Culture);
+            var dateText = tomorrow.ToString("dd MMMM yyyy", culture);
             var privates = new Dictionary<int, (string text, long chatId)>();
             var groups = new Dictionary<long, List<(int userId, string name, string time)>>();
             
@@ -90,7 +161,7 @@ namespace MaximEmmBots.Services
                 if (string.IsNullOrWhiteSpace(dayText))
                     continue;
 
-                var place = char.ToLower(dayText[0], Culture);
+                var place = char.ToLower(dayText[0], culture);
                 var restaurant = _data.Restaurants.Find(r => r.PlaceId == place.ToString());
                 if (restaurant == default)
                     continue;
@@ -121,7 +192,7 @@ namespace MaximEmmBots.Services
                 if (rowUserId == 0 || userId > 0 && rowUserId != userId)
                     continue;
 
-                infoText.AppendFormat(" {0}", restaurant.PlaceText);
+                infoText.AppendFormat(" {0}", restaurant.PlaceInfo);
                 
                 privates.Add(rowUserId, ($"Дорогой(ая/ое) {name}, *{dateText}* ты работаешь с {infoText}!", restaurant.ChatId));
             }
@@ -159,7 +230,7 @@ namespace MaximEmmBots.Services
                         continue;
                     
                     var groupTextBuilder = new StringBuilder();
-                    groupTextBuilder.AppendFormat("*{0}* у нас {1} работают:\n", dateText, restaurant.PlaceText);
+                    groupTextBuilder.AppendFormat("*{0}* у нас {1} работают:\n", dateText, restaurant.PlaceInfo);
                     groupTextBuilder.AppendJoin('\n', users.Select(u => u.userId > 0
                         ? $"[{u.name}](tg://user?id={u.userId}) с {u.time}"
                         : $"*{u.name}* с {u.time}"));
