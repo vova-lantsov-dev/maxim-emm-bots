@@ -7,11 +7,11 @@ namespace MaximEmmBots.Services.GuestsBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly GoogleSheetsService _googleSheetsService;
+        private readonly GuestsBotSheetsService _guestsBotSheetsService;
 
-        public WorkerService(GoogleSheetsService googleSheetsService)
+        public WorkerService(GuestsBotSheetsService guestsBotSheetsService)
         {
-            _googleSheetsService = googleSheetsService;
+            _guestsBotSheetsService = guestsBotSheetsService;
         }
 
 
@@ -19,7 +19,7 @@ namespace MaximEmmBots.Services.GuestsBot
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _googleSheetsService.ExecuteForGuestsBotAsync(stoppingToken);
+                await _guestsBotSheetsService.ExecuteAsync(stoppingToken);
                 await Task.Delay(TimeSpan.FromMinutes(5d), stoppingToken);
             }
         }

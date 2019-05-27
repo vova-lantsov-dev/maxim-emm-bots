@@ -12,17 +12,17 @@ namespace MaximEmmBots.Services.DistributionBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly GoogleSheetsService _googleSheetsService;
+        private readonly DistributionBotSheetsService _distributionBotSheetsService;
         private readonly IReadOnlyDictionary<string, TimeZoneInfo> _timeZones;
         private readonly Data _data;
         
         private static readonly TimeSpan Time1D = new TimeSpan(1, 0, 0, 0);
         private static readonly TimeSpan Time20H = new TimeSpan(20, 0, 0);
         
-        public WorkerService(GoogleSheetsService googleSheetsService, IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
+        public WorkerService(DistributionBotSheetsService distributionBotSheetsService, IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
             IOptions<DataOptions> dataOptions)
         {
-            _googleSheetsService = googleSheetsService;
+            _distributionBotSheetsService = distributionBotSheetsService;
             _timeZones = timeZones;
             _data = dataOptions.Value.Data;
         }
@@ -38,7 +38,7 @@ namespace MaximEmmBots.Services.DistributionBot
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _googleSheetsService.ExecuteForDistributionBotAsync(restaurant.Culture.TimeZone,
+                await _distributionBotSheetsService.ExecuteAsync(restaurant.Culture.TimeZone,
                     restaurant.Culture.Name, stoppingToken);
                 await Task.Delay(GetStartDelay(), stoppingToken);
             }
