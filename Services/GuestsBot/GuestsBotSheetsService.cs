@@ -72,17 +72,17 @@ namespace MaximEmmBots.Services.GuestsBot
                     var searchDate = rowDate.ToString("d", russianCulture);
                     var searchTime = rowDate.ToString("T", russianCulture);
                     
-                    var filter = Builders<SentCounter>.Filter.And(
-                        Builders<SentCounter>.Filter.Eq(c => c.Date, searchDate),
+                    var filter = Builders<SentForm>.Filter.And(
+                        Builders<SentForm>.Filter.Eq(c => c.Date, searchDate),
                                     new BsonDocument("SentTimes", new BsonDocument("$elemMatch", new BsonDocument("$eq", searchTime))),
-                                    Builders<SentCounter>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
+                                    Builders<SentForm>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
                     
                     try
                     {
-                        if (await _context.SentCounters.Find(filter).AnyAsync(stoppingToken))
+                        if (await _context.SentForms.Find(filter).AnyAsync(stoppingToken))
                             continue;
                     
-                        await _context.SentCounters.UpdateOneAsync(filter, Builders<SentCounter>.Update
+                        await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
                                 .Push(c => c.SentTimes, searchTime)
                                 .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
                             new UpdateOptions {IsUpsert = true}, stoppingToken);
