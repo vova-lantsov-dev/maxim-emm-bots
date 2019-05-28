@@ -1,3 +1,5 @@
+using System.Threading;
+using MaximEmmBots.Models.Json;
 using Microsoft.Extensions.Logging;
 
 namespace MaximEmmBots.Extensions
@@ -8,6 +10,11 @@ namespace MaximEmmBots.Extensions
         {
             loggingBuilder.AddConsole();
             loggingBuilder.SetMinimumLevel(LogLevel.Information);
+        }
+
+        internal static EventId GetEventId(Restaurant restaurant, StatData statData)
+        {
+            return new EventId(Thread.CurrentThread.ManagedThreadId, $"{restaurant.ChatId}-{statData.Id}");
         }
     }
 }
