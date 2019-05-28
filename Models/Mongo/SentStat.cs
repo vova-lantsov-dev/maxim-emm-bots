@@ -1,4 +1,6 @@
+using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MaximEmmBots.Models.Mongo
 {
@@ -8,6 +10,7 @@ namespace MaximEmmBots.Models.Mongo
         
         public string StatId { get; set; }
         
-        public string SentDate { get; set; }
+        [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Unspecified)]
+        public DateTime SentDate { get; set; }
     }
 }
