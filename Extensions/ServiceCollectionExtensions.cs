@@ -35,14 +35,11 @@ namespace MaximEmmBots.Extensions
         {
             services.AddSingleton(new SheetsService(googleInitializer));
             services.AddSingleton<GoogleSheetsService>();
-            services.AddSingleton<GuestsBotSheetsService>();
-            services.AddSingleton<DistributionBotSheetsService>();
         }
 
         internal static void AddWorkerServices(this IServiceCollection services)
         {
             services.AddHostedService<ReviewBotWorkerService>();
-            services.AddHostedService<GuestsBotWorkerService>();
         }
 
         internal static void AddBotServices(this IServiceCollection services, string botToken)
@@ -56,6 +53,12 @@ namespace MaximEmmBots.Extensions
             IReadOnlyDictionary<string, LocalizationModel> localizationModels)
         {
             services.AddSingleton(localizationModels);
+        }
+
+        internal static void AddGuestsBot(this IServiceCollection services)
+        {
+            services.AddSingleton<GuestsBotSheetsService>();
+            services.AddHostedService<GuestsBotWorkerService>();
         }
 
         internal static void AddDistributionBot(this IServiceCollection services)
