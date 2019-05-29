@@ -33,13 +33,14 @@ namespace MaximEmmBots
                 .UseEnvironment(Environments.Development)
                 .ConfigureServices(serviceCollection =>
                 {
+                    serviceCollection.AddGeneralServices(data);
+                    serviceCollection.AddBotServices(data.Bot.Token);
+                    
                     serviceCollection.AddDistributionBot();
                     serviceCollection.AddGuestsBot();
+                    serviceCollection.AddReviewBot();
                     
-                    serviceCollection.AddGeneralServices(data);
                     serviceCollection.AddGoogleServices(googleInitializer);
-                    serviceCollection.AddBotServices(data.Bot.Token);
-                    serviceCollection.AddWorkerServices();
                     serviceCollection.AddLocalizationServices(languageDictionary);
                     serviceCollection.AddChartServices();
                 })

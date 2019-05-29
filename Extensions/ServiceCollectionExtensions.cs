@@ -37,11 +37,6 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton<GoogleSheetsService>();
         }
 
-        internal static void AddWorkerServices(this IServiceCollection services)
-        {
-            services.AddHostedService<ReviewBotWorkerService>();
-        }
-
         internal static void AddBotServices(this IServiceCollection services, string botToken)
         {
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
@@ -53,6 +48,11 @@ namespace MaximEmmBots.Extensions
             IReadOnlyDictionary<string, LocalizationModel> localizationModels)
         {
             services.AddSingleton(localizationModels);
+        }
+
+        internal static void AddReviewBot(this IServiceCollection services)
+        {
+            services.AddHostedService<ReviewBotWorkerService>();
         }
 
         internal static void AddGuestsBot(this IServiceCollection services)
