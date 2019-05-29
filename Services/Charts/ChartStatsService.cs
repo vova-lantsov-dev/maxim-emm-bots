@@ -12,7 +12,7 @@ using MongoDB.Driver;
 
 // ReSharper disable ImplicitlyCapturedClosure
 
-namespace MaximEmmBots.Services.GuestsBot
+namespace MaximEmmBots.Services.Charts
 {
     internal sealed class ChartStatsService : BackgroundService
     {
