@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="Google.Apis.Sheets.v4" Version="1.40.0.1588" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-preview5.19227.9" />
+      <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="3.0.0-preview5.19227.9" />
       <PackageReference Include="MongoDB.Bson" Version="2.8.1" />
       <PackageReference Include="MongoDB.Driver" Version="2.8.1" />
       <PackageReference Include="MongoDB.Driver.Core" Version="2.8.1" />
