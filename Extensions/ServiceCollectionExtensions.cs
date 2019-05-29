@@ -11,8 +11,10 @@ using MaximEmmBots.Services.Charts;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
@@ -26,7 +28,7 @@ namespace MaximEmmBots.Extensions
             services.Configure<DataOptions>(options => options.Data = data);
 
             services.AddSingleton<Context>();
-            services.AddSingleton<HttpClient>();
+            services.AddSingleton<HttpClient>(); // TODO redundant
             services.AddSingleton<ChartClient>();
         }
 
@@ -61,6 +63,13 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton(localizationModels);
             services.AddSingleton(timeZoneDictionary);
             services.AddSingleton(cultureDictionary);
+        }
+
+        internal static void AddHttpFactory(this IServiceCollection services)
+        {
+            services.AddHttpClient<ChartClient>()
+                .AddTransientHttpErrorPolicy(policyBuilder =>
+                    policyBuilder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(10d)));
         }
     }
 }

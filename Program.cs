@@ -50,6 +50,7 @@ namespace MaximEmmBots
                     serviceCollection.AddWorkerServices();
                     serviceCollection.AddLocalizationServices(languageDictionary, timeZoneDictionary,
                         cultureDictionary);
+                    serviceCollection.AddHttpFactory();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
