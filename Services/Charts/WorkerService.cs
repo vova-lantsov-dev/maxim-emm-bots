@@ -14,17 +14,17 @@ using MongoDB.Driver;
 
 namespace MaximEmmBots.Services.Charts
 {
-    internal sealed class ChartStatsService : BackgroundService
+    internal sealed class WorkerService : BackgroundService
     {
         private readonly Data _data;
         private readonly Context _context;
         private readonly CultureService _cultureService;
-        private readonly ILogger<ChartStatsService> _logger;
+        private readonly ILogger<WorkerService> _logger;
 
-        public ChartStatsService(IOptions<Data> dataOptions,
+        public WorkerService(IOptions<Data> dataOptions,
             Context context,
             CultureService cultureService,
-            ILogger<ChartStatsService> logger)
+            ILogger<WorkerService> logger)
         {
             _context = context;
             _cultureService = cultureService;
