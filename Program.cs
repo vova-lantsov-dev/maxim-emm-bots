@@ -38,7 +38,7 @@ namespace MaximEmmBots
                     serviceCollection.AddBotServices(data.Bot.Token);
                     serviceCollection.AddWorkerServices();
                     serviceCollection.AddLocalizationServices(languageDictionary);
-                    serviceCollection.AddHttpFactory();
+                    serviceCollection.AddChartServices();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();

@@ -12,10 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
-using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
+using ChartWorkerService = MaximEmmBots.Services.Charts.WorkerService;
+using Context = MaximEmmBots.Services.Context;
 
 namespace MaximEmmBots.Extensions
 {
@@ -26,7 +27,6 @@ namespace MaximEmmBots.Extensions
             services.Configure<DataOptions>(options => options.Data = data);
 
             services.AddSingleton<Context>();
-            services.AddSingleton<ChartClient>();
             services.AddSingleton<CultureService>();
         }
 
@@ -41,8 +41,8 @@ namespace MaximEmmBots.Extensions
 
         internal static void AddWorkerServices(this IServiceCollection services)
         {
-            //services.AddHostedService<ReviewBotWorkerService>();
-            //services.AddHostedService<DistributionBotWorkerService>();
+            services.AddHostedService<ReviewBotWorkerService>();
+            services.AddHostedService<DistributionBotWorkerService>();
             services.AddHostedService<GuestsBotWorkerService>();
         }
 
@@ -50,7 +50,7 @@ namespace MaximEmmBots.Extensions
         {
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
             services.AddSingleton<IUpdateHandler, BotHandler>();
-            //services.AddHostedService<BotHandlerService>();
+            services.AddHostedService<BotHandlerService>();
         }
 
         internal static void AddLocalizationServices(this IServiceCollection services,
@@ -59,8 +59,12 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton(localizationModels);
         }
 
-        internal static void AddHttpFactory(this IServiceCollection services)
+        internal static void AddChartServices(this IServiceCollection services)
         {
+            services.AddSingleton<ChartClient>();
+            services.AddHostedService<ChartWorkerService>();
+            // TODO chart notifier service
+            
             services.AddHttpClient<ChartClient>(chartClient =>
                 {
                     chartClient.BaseAddress = new Uri("https://image-charts.com/chart");
