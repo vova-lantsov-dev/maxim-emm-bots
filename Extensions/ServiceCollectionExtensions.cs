@@ -63,7 +63,10 @@ namespace MaximEmmBots.Extensions
 
         internal static void AddHttpFactory(this IServiceCollection services)
         {
-            services.AddHttpClient<ChartClient>()
+            services.AddHttpClient<ChartClient>(chartClient =>
+                {
+                    chartClient.BaseAddress = new Uri("https://image-charts.com/chart");
+                })
                 .AddTransientHttpErrorPolicy(policyBuilder =>
                     policyBuilder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(10d)));
         }
