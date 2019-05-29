@@ -26,6 +26,8 @@ namespace MaximEmmBots.Services
             return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneFor(restaurant));
         }
 
+        #region Extensions
+
         private static Lazy<CultureInfo> CultureInfoInitializer(string cultureName)
         {
             return new Lazy<CultureInfo>(() => new CultureInfo(cultureName));
@@ -35,5 +37,7 @@ namespace MaximEmmBots.Services
         {
             return new Lazy<TimeZoneInfo>(() => TZConvert.GetTimeZoneInfo(timeZoneName));
         }
+        
+        #endregion
     }
 }
