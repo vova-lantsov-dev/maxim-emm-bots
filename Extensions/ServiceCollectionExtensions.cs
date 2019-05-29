@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net.Http;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -30,6 +29,7 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton<Context>();
             services.AddSingleton<HttpClient>(); // TODO redundant
             services.AddSingleton<ChartClient>();
+            services.AddSingleton<CultureService>();
         }
 
         internal static void AddGoogleServices(this IServiceCollection services,
@@ -56,13 +56,9 @@ namespace MaximEmmBots.Extensions
         }
 
         internal static void AddLocalizationServices(this IServiceCollection services,
-            IReadOnlyDictionary<string, LocalizationModel> localizationModels,
-            IReadOnlyDictionary<string, TimeZoneInfo> timeZoneDictionary,
-            IReadOnlyDictionary<string, CultureInfo> cultureDictionary)
+            IReadOnlyDictionary<string, LocalizationModel> localizationModels)
         {
             services.AddSingleton(localizationModels);
-            services.AddSingleton(timeZoneDictionary);
-            services.AddSingleton(cultureDictionary);
         }
 
         internal static void AddHttpFactory(this IServiceCollection services)
