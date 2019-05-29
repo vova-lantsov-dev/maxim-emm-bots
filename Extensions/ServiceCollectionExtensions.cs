@@ -42,7 +42,6 @@ namespace MaximEmmBots.Extensions
         internal static void AddWorkerServices(this IServiceCollection services)
         {
             services.AddHostedService<ReviewBotWorkerService>();
-            services.AddHostedService<DistributionBotWorkerService>();
             services.AddHostedService<GuestsBotWorkerService>();
         }
 
@@ -57,6 +56,12 @@ namespace MaximEmmBots.Extensions
             IReadOnlyDictionary<string, LocalizationModel> localizationModels)
         {
             services.AddSingleton(localizationModels);
+        }
+
+        internal static void AddDistributionBot(this IServiceCollection services)
+        {
+            services.AddSingleton<DistributionBotSheetsService>();
+            services.AddHostedService<DistributionBotWorkerService>();
         }
 
         internal static void AddChartServices(this IServiceCollection services)

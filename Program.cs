@@ -33,6 +33,8 @@ namespace MaximEmmBots
                 .UseEnvironment(Environments.Development)
                 .ConfigureServices(serviceCollection =>
                 {
+                    serviceCollection.AddDistributionBot();
+                    
                     serviceCollection.AddGeneralServices(data);
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddBotServices(data.Bot.Token);
