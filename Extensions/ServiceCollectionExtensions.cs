@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
@@ -27,7 +26,6 @@ namespace MaximEmmBots.Extensions
             services.Configure<DataOptions>(options => options.Data = data);
 
             services.AddSingleton<Context>();
-            services.AddSingleton<HttpClient>(); // TODO redundant
             services.AddSingleton<ChartClient>();
             services.AddSingleton<CultureService>();
         }
