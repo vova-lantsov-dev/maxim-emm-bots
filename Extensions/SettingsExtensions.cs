@@ -14,7 +14,7 @@ namespace MaximEmmBots.Extensions
             return await JsonSerializer.ReadAsync<Data>(settingsFile);
         }
 
-        internal static async IAsyncEnumerable<(string name, LocalizationModel model)> LoadLanguagesAsync(string basePath, IEnumerable<string> languageKeys)
+        internal static async IAsyncEnumerable<(string name, LocalizationModel model)> YieldLanguagesAsync(string basePath, IEnumerable<string> languageKeys)
         {
             foreach (var languageKey in languageKeys)
             {
