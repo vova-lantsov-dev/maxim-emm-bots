@@ -16,7 +16,7 @@ namespace MaximEmmBots
             var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
             var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
 
-            var languageModels = SettingsExtensions.LoadLanguagesAsync(Directory.GetCurrentDirectory(),
+            var languageModels = SettingsExtensions.YieldLanguagesAsync(Directory.GetCurrentDirectory(),
                 data.Restaurants.Select(r => r.Culture.Name).Distinct());
             var languageDictionary = new Dictionary<string, LocalizationModel>();
             await foreach (var (name, model) in languageModels)
