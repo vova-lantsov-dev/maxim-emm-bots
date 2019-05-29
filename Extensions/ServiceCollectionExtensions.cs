@@ -7,6 +7,7 @@ using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Options;
 using MaximEmmBots.Services;
+using MaximEmmBots.Services.Charts;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
 using Microsoft.Extensions.DependencyInjection;
