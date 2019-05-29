@@ -34,6 +34,7 @@ namespace MaximEmmBots
                 .ConfigureServices(serviceCollection =>
                 {
                     serviceCollection.AddDistributionBot();
+                    serviceCollection.AddGuestsBot();
                     
                     serviceCollection.AddGeneralServices(data);
                     serviceCollection.AddGoogleServices(googleInitializer);
