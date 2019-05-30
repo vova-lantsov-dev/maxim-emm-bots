@@ -80,7 +80,7 @@ namespace MaximEmmBots.Services.GuestsBot
                                     new SentFormItem
                                     {
                                         SentTime = rowDate.TimeOfDay,
-                                        EmployeeName = row[restaurant.GuestsBot.ColumnOfName].ToString()
+                                        EmployeeName = row[restaurant.GuestsBot.ColumnOfName - 1].ToString()
                                     })
                                 .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
                             new UpdateOptions {IsUpsert = true}, stoppingToken);
