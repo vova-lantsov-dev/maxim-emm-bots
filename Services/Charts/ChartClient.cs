@@ -53,7 +53,7 @@ namespace MaximEmmBots.Services.Charts
                 ["chli"] = chli.ToString(),
                 ["chl"] = string.Join('|', chl)
             };
-            var url = "/?" + string.Join('&', query.Select(it => $"{it.Key}={it.Value}"));
+            var url = "chart?" + string.Join('&', query.Select(it => $"{it.Key}={it.Value}"));
             
             await using var respStream = await _client.GetStreamAsync(url);
             await respStream.CopyToAsync(destinationStream);
