@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MaximEmmBots.Models.Mongo
 {
@@ -19,6 +20,7 @@ namespace MaximEmmBots.Models.Mongo
 
     internal sealed class SentFormItem
     {
+        [BsonTimeSpanOptions(BsonType.Int64, TimeSpanUnits.Seconds)]
         public TimeSpan SentTime { get; set; }
         
         public string EmployeeName { get; set; }
