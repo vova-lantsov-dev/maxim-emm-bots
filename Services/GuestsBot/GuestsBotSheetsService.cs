@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Mongo;
+using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -24,13 +25,13 @@ namespace MaximEmmBots.Services.GuestsBot
         private readonly CultureService _cultureService;
 
         public GuestsBotSheetsService(ITelegramBotClient client,
-            IOptions<Data> dataOptions,
+            IOptions<DataOptions> dataOptions,
             Context context,
             ILogger<GoogleSheetsService> logger,
             GoogleSheetsService googleSheetsService, CultureService cultureService)
         {
             _client = client;
-            _data = dataOptions.Value;
+            _data = dataOptions.Value.Data;
             _context = context;
             _logger = logger;
             _googleSheetsService = googleSheetsService;
