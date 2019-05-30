@@ -79,7 +79,7 @@ namespace MaximEmmBots.Extensions
             
             services.AddHttpClient<ChartClient>(chartClient =>
                 {
-                    chartClient.BaseAddress = new Uri("https://image-charts.com/chart");
+                    chartClient.BaseAddress = new Uri("https://image-charts.com/");
                 })
                 .AddTransientHttpErrorPolicy(policyBuilder =>
                     policyBuilder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(10d)));
