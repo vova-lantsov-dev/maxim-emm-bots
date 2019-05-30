@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -8,11 +9,18 @@ namespace MaximEmmBots.Models.Mongo
     {
         public ObjectId Id { get; set; }
         
-        public string Date { get; set; }
+        [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Unspecified)]
+        public DateTime Date { get; set; }
         
         public long RestaurantId { get; set; }
         
-        [BsonIgnoreIfNull]
-        public List<string> SentTimes { get; set; }
+        public List<SentFormItem> Items { get; set; }
+    }
+
+    internal sealed class SentFormItem
+    {
+        public TimeSpan SentTime { get; set; }
+        
+        public string EmployeeName { get; set; }
     }
 }
