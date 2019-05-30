@@ -11,7 +11,6 @@ namespace MaximEmmBots.Services
     {
         private readonly SheetsService _sheetsService;
         private readonly ILogger<GoogleSheetsService> _logger;
-        private static readonly EventId EventId = new EventId(12000);
 
         public GoogleSheetsService(SheetsService sheetsService, ILogger<GoogleSheetsService> logger)
         {
@@ -21,8 +20,8 @@ namespace MaximEmmBots.Services
         
         internal async Task<ValueRange> GetValueRangeAsync(string sId, string range, CancellationToken stoppingToken)
         {
-            _logger.LogDebug(EventId, "SpreadsheetId is {0}", sId);
-            _logger.LogDebug(EventId, "Range is {0}", range);
+            _logger.LogDebug("SpreadsheetId is {0}", sId);
+            _logger.LogDebug("Range is {0}", range);
             
             var request = _sheetsService.Spreadsheets.Values.Get(sId, range);
 
@@ -32,7 +31,7 @@ namespace MaximEmmBots.Services
             }
             catch (Exception e)
             {
-                _logger.LogCritical(EventId, e, "Error occurred while executing spreadsheet request.");
+                _logger.LogCritical(e, "Error occurred while executing spreadsheet request.");
                 return null;
             }
         }
