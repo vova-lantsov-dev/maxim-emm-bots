@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
@@ -10,7 +11,6 @@ using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
@@ -122,7 +122,7 @@ namespace MaximEmmBots.Services
                     if (googleCredential == default)
                         return;
 
-                    var jsonContent = JsonConvert.SerializeObject(new { comment = update.Message.Text });
+                    var jsonContent = JsonSerializer.ToString(new { comment = update.Message.Text });
 
                     var httpRequest = new HttpRequestMessage(HttpMethod.Put, review.ReplyLink);
                     httpRequest.Headers.Authorization =
