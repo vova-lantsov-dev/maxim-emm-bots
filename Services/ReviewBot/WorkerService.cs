@@ -23,10 +23,10 @@ namespace MaximEmmBots.Services.ReviewBot
         private readonly ILogger<WorkerService> _logger;
         private readonly Data _data;
         private readonly Context _context;
-        private readonly TelegramBotClient _client;
+        private readonly ITelegramBotClient _client;
         
         public WorkerService(IOptions<DataOptions> options, ILogger<WorkerService> logger,
-            Context context, TelegramBotClient client)
+            Context context, ITelegramBotClient client)
         {
             _data = options.Value.Data;
             _logger = logger;
