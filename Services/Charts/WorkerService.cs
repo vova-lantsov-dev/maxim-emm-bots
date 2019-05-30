@@ -1,15 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Extensions;
+using MaximEmmBots.Models.Charts;
 using MaximEmmBots.Models.Json;
+using MaximEmmBots.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Telegram.Bot;
 
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable AccessToModifiedClosure
 // ReSharper disable ImplicitlyCapturedClosure
 
 namespace MaximEmmBots.Services.Charts
@@ -19,17 +26,22 @@ namespace MaximEmmBots.Services.Charts
         private readonly Data _data;
         private readonly Context _context;
         private readonly CultureService _cultureService;
-        private readonly ILogger<WorkerService> _logger;
+        private readonly ILogger _logger;
+        private readonly ChartClient _chartClient;
+        private readonly ITelegramBotClient _client;
 
-        public WorkerService(IOptions<Data> dataOptions,
+        public WorkerService(IOptions<DataOptions> dataOptions,
             Context context,
             CultureService cultureService,
-            ILogger<WorkerService> logger)
+            ILoggerFactory loggerFactory,
+            ChartClient chartClient, ITelegramBotClient client)
         {
             _context = context;
             _cultureService = cultureService;
-            _logger = logger;
-            _data = dataOptions.Value;
+            _chartClient = chartClient;
+            _client = client;
+            _logger = loggerFactory.CreateLogger("ChartsWorkerService");
+            _data = dataOptions.Value.Data;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -124,9 +136,51 @@ namespace MaximEmmBots.Services.Charts
 
             await Task.Delay(GetDelayTime(), stoppingToken);
 
+            var culture = _cultureService.CultureFor(restaurant);
+
             while (!stoppingToken.IsCancellationRequested)
             {
-                // TODO stats processing
+                var now = _cultureService.NowFor(restaurant);
+                var statsForPeriod = await _context.SentForms
+                    .Find(sf => sf.Date >= lastStat && sf.Date <= now.Date && sf.RestaurantId == restaurant.ChatId)
+                    .ToListAsync(stoppingToken);
+
+                var pieChartDictionary = new Dictionary<string, int>();
+                foreach (var stat in statsForPeriod)
+                {
+                    var isFirstDay = stat.Date == now.Date;
+                    var isLastDay = stat.Date == lastStat;
+                    
+                    foreach (var statItem in stat.Items)
+                    {
+                        if (isFirstDay && statItem.SentTime < sendAt || isLastDay && statItem.SentTime > now.TimeOfDay)
+                            continue;
+
+                        pieChartDictionary.TryGetValue(statItem.EmployeeName, out var employeeWeight);
+                        pieChartDictionary[statItem.EmployeeName] = employeeWeight + 1;
+                    }
+                }
+
+                var pieChartItems = new List<PieChartItem>();
+                foreach (var (employeeName, weight) in pieChartDictionary)
+                {
+                    pieChartItems.Add(new PieChartItem
+                    {
+                        Legend = weight.ToString(),
+                        Text = employeeName,
+                        Weight = weight
+                    });
+                }
+
+                await using (var ms = new MemoryStream())
+                {
+                    await _chartClient.LoadDoughnutPieChartAsync(ms, pieChartItems);
+                    await _client.SendPhotoAsync(restaurant.ChatId, ms,
+                        $"График заполнения форм за {(lastStat + sendAt).ToString("G", culture)}-{now.ToString("G", culture)}",
+                        cancellationToken: stoppingToken);
+                }
+
+                lastStat = now.Date;
                 
                 await Task.Delay(GetDelayTime(), stoppingToken);
             }
