@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -21,25 +20,21 @@ namespace MaximEmmBots.Services.GuestsBot
         private readonly Data _data;
         private readonly Context _context;
         private readonly ILogger<GoogleSheetsService> _logger;
-        private readonly IReadOnlyDictionary<string, TimeZoneInfo> _timeZones;
-        private readonly IReadOnlyDictionary<string, CultureInfo> _cultures;
         private readonly GoogleSheetsService _googleSheetsService;
+        private readonly CultureService _cultureService;
 
         public GuestsBotSheetsService(ITelegramBotClient client,
             IOptions<Data> dataOptions,
             Context context,
             ILogger<GoogleSheetsService> logger,
-            IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
-            IReadOnlyDictionary<string, CultureInfo> cultures,
-            GoogleSheetsService googleSheetsService)
+            GoogleSheetsService googleSheetsService, CultureService cultureService)
         {
             _client = client;
             _data = dataOptions.Value;
             _context = context;
             _logger = logger;
-            _timeZones = timeZones;
-            _cultures = cultures;
             _googleSheetsService = googleSheetsService;
+            _cultureService = cultureService;
         }
 
         internal async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,10 +50,10 @@ namespace MaximEmmBots.Services.GuestsBot
                     return;
                 }
 
-                var today = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZones[restaurant.Culture.TimeZone]).AddDays(-1d).Date;
+                var today = _cultureService.NowFor(restaurant).AddDays(-1d).Date;
 
                 var questions = response.Values[0].Select(questionColumn => questionColumn.ToString()).ToList();
-                var russianCulture = _cultures["ru-RU"];
+                var russianCulture = _cultureService.CultureFor(restaurant);
                 
                 foreach (var row in response.Values.Skip(1))
                 {
