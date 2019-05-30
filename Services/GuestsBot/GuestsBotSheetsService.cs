@@ -51,7 +51,7 @@ namespace MaximEmmBots.Services.GuestsBot
                     return;
                 }
 
-                var today = _cultureService.NowFor(restaurant).AddDays(-1d).Date;
+                var today = _cultureService.NowFor(restaurant).Date;
 
                 var questions = response.Values[0].Select(questionColumn => questionColumn.ToString()).ToList();
                 var russianCulture = _cultureService.CultureFor(restaurant);
@@ -64,15 +64,14 @@ namespace MaximEmmBots.Services.GuestsBot
                     if (!DateTime.TryParseExact(row[0].ToString(), "G", russianCulture,
                             DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
                         continue;
-
-                    var filter = Builders<SentForm>.Filter.And(
-                        Builders<SentForm>.Filter.Eq(c => c.Date, rowDate.Date),
-                        new BsonDocument("SentTimes",
-                            new BsonDocument("$elemMatch", new BsonDocument("$eq", BsonValue.Create(rowDate.TimeOfDay)))),
-                        Builders<SentForm>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
-
+                    
                     try
                     {
+                        var filter = Builders<SentForm>.Filter.And(
+                        Builders<SentForm>.Filter.Eq(f => f.Date, rowDate.Date),
+                        Builders<SentForm>.Filter.ElemMatch(f => f.Items, it => it.SentTime == rowDate.TimeOfDay),
+                        Builders<SentForm>.Filter.Eq(f => f.RestaurantId, restaurant.ChatId));
+                    
                         if (await _context.SentForms.Find(filter).AnyAsync(stoppingToken))
                             continue;
 
