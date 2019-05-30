@@ -17,6 +17,8 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
+// ReSharper disable SwitchStatementMissingSomeCases
+
 namespace MaximEmmBots.Services
 {
     internal sealed class BotHandler : IUpdateHandler
@@ -27,8 +29,11 @@ namespace MaximEmmBots.Services
         private readonly ILogger<BotHandler> _logger;
         private readonly HttpClient _httpClient;
         
-        public BotHandler(ILogger<BotHandler> logger, ITelegramBotClient client, IOptions<DataOptions> dataOptions,
-            Context context, HttpClient httpClient)
+        public BotHandler(ILogger<BotHandler> logger,
+            ITelegramBotClient client,
+            IOptions<DataOptions> dataOptions,
+            Context context,
+            HttpClient httpClient)
         {
             _logger = logger;
             _client = client;
@@ -39,7 +44,6 @@ namespace MaximEmmBots.Services
         
         public async Task HandleUpdate(Update update, CancellationToken cancellationToken)
         {
-            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (update.Type)
             {
                 case UpdateType.CallbackQuery when update.CallbackQuery.Message != null:
