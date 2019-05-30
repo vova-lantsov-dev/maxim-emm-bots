@@ -1,7 +1,10 @@
 using MaximEmmBots.Models.Mongo;
 using MaximEmmBots.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+
+// ReSharper disable SuggestBaseTypeForParameter
 
 namespace MaximEmmBots.Services
 {
@@ -13,8 +16,10 @@ namespace MaximEmmBots.Services
         internal readonly IMongoCollection<SentForm> SentForms;
         internal readonly IMongoCollection<SentStat> SentStats;
         
-        public Context(IOptions<DataOptions> options)
+        public Context(IOptions<DataOptions> options, ILogger<Context> logger)
         {
+            logger.LogTrace("Context initialization started");
+            
             var mongoClient = new MongoClient(options.Value.Data.MongoConnectionString);
             var db = mongoClient.GetDatabase("reviewbot");
 
@@ -23,6 +28,8 @@ namespace MaximEmmBots.Services
             GoogleCredentials = db.GetCollection<Credential>("credentials");
             SentForms = db.GetCollection<SentForm>(nameof(SentForms));
             SentStats = db.GetCollection<SentStat>(nameof(SentStats));
+            
+            logger.LogTrace("Context initialization finished");
         }
     }
 }
