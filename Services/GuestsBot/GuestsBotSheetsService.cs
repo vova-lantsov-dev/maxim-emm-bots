@@ -64,13 +64,10 @@ namespace MaximEmmBots.Services.GuestsBot
                             DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
                         continue;
 
-                    var searchDate = rowDate.ToString("d", russianCulture);
-                    var searchTime = rowDate.ToString("T", russianCulture);
-
                     var filter = Builders<SentForm>.Filter.And(
-                        Builders<SentForm>.Filter.Eq(c => c.Date, searchDate),
+                        Builders<SentForm>.Filter.Eq(c => c.Date, rowDate.Date),
                         new BsonDocument("SentTimes",
-                            new BsonDocument("$elemMatch", new BsonDocument("$eq", searchTime))),
+                            new BsonDocument("$elemMatch", new BsonDocument("$eq", BsonValue.Create(rowDate.TimeOfDay)))),
                         Builders<SentForm>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
 
                     try
@@ -79,7 +76,12 @@ namespace MaximEmmBots.Services.GuestsBot
                             continue;
 
                         await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
-                                .Push(c => c.SentTimes, searchTime)
+                                .Push(c => c.Items,
+                                    new SentFormItem
+                                    {
+                                        SentTime = rowDate.TimeOfDay,
+                                        EmployeeName = row[restaurant.GuestsBot.ColumnOfName].ToString()
+                                    })
                                 .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
                             new UpdateOptions {IsUpsert = true}, stoppingToken);
 

@@ -8,6 +8,8 @@ namespace MaximEmmBots.Models.Json
         
         public string TableName { get; set; }
         
+        public int ColumnOfName { get; set; }
+        
         public List<StatData> Stats { get; set; }
     }
 }
