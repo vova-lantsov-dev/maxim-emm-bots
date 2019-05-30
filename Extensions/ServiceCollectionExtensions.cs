@@ -42,6 +42,10 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
             services.AddSingleton<IUpdateHandler, BotHandler>();
             services.AddHostedService<BotHandlerService>();
+            
+            services.AddHttpClient<BotHandler>()
+                .AddTransientHttpErrorPolicy(policyBuilder =>
+                    policyBuilder.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(3d)));
         }
 
         internal static void AddLocalizationServices(this IServiceCollection services,
