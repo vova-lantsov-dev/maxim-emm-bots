@@ -20,22 +20,26 @@ namespace MaximEmmBots.Services.ReviewBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly ILogger<WorkerService> _logger;
+        private readonly ILogger _logger;
         private readonly Data _data;
         private readonly Context _context;
         private readonly ITelegramBotClient _client;
         
-        public WorkerService(IOptions<DataOptions> options, ILogger<WorkerService> logger,
-            Context context, ITelegramBotClient client)
+        public WorkerService(IOptions<DataOptions> options,
+            ILoggerFactory loggerFactory,
+            Context context,
+            ITelegramBotClient client)
         {
             _data = options.Value.Data;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger("ReviewBotWorkerService");
             _context = context;
             _client = client;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Starting ReviewBotWorkerService...");
+            
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
