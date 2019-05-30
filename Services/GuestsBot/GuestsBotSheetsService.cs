@@ -54,7 +54,7 @@ namespace MaximEmmBots.Services.GuestsBot
 
                 var questions = response.Values[0].Select(questionColumn => questionColumn.ToString()).ToList();
                 var russianCulture = _cultureService.CultureFor(restaurant);
-                
+
                 foreach (var row in response.Values.Skip(1))
                 {
                     if (row.Count <= 1)
@@ -63,20 +63,21 @@ namespace MaximEmmBots.Services.GuestsBot
                     if (!DateTime.TryParseExact(row[0].ToString(), "G", russianCulture,
                             DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
                         continue;
-                    
+
                     var searchDate = rowDate.ToString("d", russianCulture);
                     var searchTime = rowDate.ToString("T", russianCulture);
-                    
+
                     var filter = Builders<SentForm>.Filter.And(
                         Builders<SentForm>.Filter.Eq(c => c.Date, searchDate),
-                                    new BsonDocument("SentTimes", new BsonDocument("$elemMatch", new BsonDocument("$eq", searchTime))),
-                                    Builders<SentForm>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
-                    
+                        new BsonDocument("SentTimes",
+                            new BsonDocument("$elemMatch", new BsonDocument("$eq", searchTime))),
+                        Builders<SentForm>.Filter.Eq(c => c.RestaurantId, restaurant.ChatId));
+
                     try
                     {
                         if (await _context.SentForms.Find(filter).AnyAsync(stoppingToken))
                             continue;
-                    
+
                         await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
                                 .Push(c => c.SentTimes, searchTime)
                                 .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
