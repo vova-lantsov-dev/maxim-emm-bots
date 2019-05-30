@@ -75,7 +75,6 @@ namespace MaximEmmBots.Extensions
         {
             services.AddSingleton<ChartClient>();
             services.AddHostedService<ChartWorkerService>();
-            // TODO chart notifier service
             
             services.AddHttpClient<ChartClient>(chartClient =>
                 {
