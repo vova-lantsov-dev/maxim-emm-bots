@@ -125,7 +125,7 @@ namespace MaximEmmBots.Services.DistributionBot
                 privates[rowUserId] = youWorkAt;
             }
             
-            if (privates.Count == 0)
+            if (users.Count == 0)
                 return;
             
             foreach (var (privateUserId, privateText) in privates)
