@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MaximEmmBots.Models.Json.DistributionBot;
 using MaximEmmBots.Models.Json.ReviewBot;
 
 namespace MaximEmmBots.Models.Json
@@ -14,10 +13,6 @@ namespace MaximEmmBots.Models.Json
         
         public GoogleCredentials GoogleCredentials { get; set; }
         
-        public DistributionBotData DistributionBot { get; set; }
-        
         public ReviewBotData ReviewBot { get; set; }
-        
-        public GuestsBotData GuestsBot { get; set; }
     }
 }
