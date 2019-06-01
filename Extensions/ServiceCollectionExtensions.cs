@@ -41,7 +41,7 @@ namespace MaximEmmBots.Extensions
         {
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
             services.AddSingleton<IUpdateHandler, BotHandler>();
-            //services.AddHostedService<BotHandlerService>();
+            services.AddHostedService<BotHandlerService>();
             
             services.AddHttpClient<BotHandler>()
                 .AddTransientHttpErrorPolicy(policyBuilder =>
@@ -56,13 +56,13 @@ namespace MaximEmmBots.Extensions
 
         internal static void AddReviewBot(this IServiceCollection services)
         {
-            //services.AddHostedService<ReviewBotWorkerService>();
+            services.AddHostedService<ReviewBotWorkerService>();
         }
 
         internal static void AddGuestsBot(this IServiceCollection services)
         {
             services.AddSingleton<GuestsBotSheetsService>();
-            //services.AddHostedService<GuestsBotWorkerService>();
+            services.AddHostedService<GuestsBotWorkerService>();
         }
 
         internal static void AddDistributionBot(this IServiceCollection services)
@@ -74,7 +74,7 @@ namespace MaximEmmBots.Extensions
         internal static void AddStatsBot(this IServiceCollection services)
         {
             services.AddSingleton<ChartClient>();
-            //services.AddHostedService<ChartWorkerService>();
+            services.AddHostedService<StatsBotWorkerService>();
             
             services.AddHttpClient<ChartClient>(chartClient =>
                 {
