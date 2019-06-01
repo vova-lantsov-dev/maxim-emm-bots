@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Google.Apis.Services;
 using MaximEmmBots.Extensions;
 using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Json.Restaurants;
 using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
@@ -15,6 +16,9 @@ namespace MaximEmmBots
         {
             var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
             var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
+            data.Restaurants = new List<Restaurant>();
+            await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync())
+                data.Restaurants.Add(restaurant);
 
             var languageModels = SettingsExtensions.YieldLanguagesAsync(Directory.GetCurrentDirectory(),
                 data.Restaurants.Select(r => r.Culture.Name).Distinct());
