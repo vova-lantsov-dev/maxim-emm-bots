@@ -5,7 +5,7 @@ using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Options;
 using MaximEmmBots.Services;
-using MaximEmmBots.Services.Charts;
+using MaximEmmBots.Services.ChartsBot;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +15,7 @@ using Telegram.Bot.Extensions.Polling;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
-using ChartWorkerService = MaximEmmBots.Services.Charts.WorkerService;
+using ChartWorkerService = MaximEmmBots.Services.ChartsBot.WorkerService;
 using Context = MaximEmmBots.Services.Context;
 
 namespace MaximEmmBots.Extensions

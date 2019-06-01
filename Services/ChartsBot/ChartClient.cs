@@ -7,7 +7,7 @@ using MaximEmmBots.Models.Charts;
 
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace MaximEmmBots.Services.Charts
+namespace MaximEmmBots.Services.ChartsBot
 {
     internal sealed class ChartClient
     {
