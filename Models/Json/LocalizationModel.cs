@@ -2,8 +2,8 @@ namespace MaximEmmBots.Models.Json
 {
     internal sealed class LocalizationModel
     {
-        #region DistributionModel
-
+        #region DistributionBotModel
+        
         public string TimeBoardIsNotAvailableForThisMonth { get; set; }
         
         public string WhoWorksAtDate { get; set; }
@@ -16,6 +16,16 @@ namespace MaximEmmBots.Models.Json
         
         public string TimeForUserWithoutTelegram { get; set; }
         
+        #endregion
+
+        #region ReviewBotModel
+
+        public string ViewFeedback { get; set; }
+        
+        public string OpenReview { get; set; }
+        
+        public string Comments { get; set; }
+
         #endregion
     }
 }

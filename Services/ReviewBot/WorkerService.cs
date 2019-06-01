@@ -24,6 +24,7 @@ namespace MaximEmmBots.Services.ReviewBot
         private readonly Data _data;
         private readonly Context _context;
         private readonly ITelegramBotClient _client;
+        private readonly IReadOnlyDictionary<string, LocalizationModel> _models;
         
         public WorkerService(IOptions<DataOptions> options,
             ILoggerFactory loggerFactory,
@@ -109,6 +110,12 @@ namespace MaximEmmBots.Services.ReviewBot
             foreach (var notSentReview in notSentReviews)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                var restaurant = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName);
+                if (restaurant == default)
+                    continue;
+
+                var model = _models[restaurant.Culture.Name];
                 
                 var buttons = new List<List<InlineKeyboardButton>>();
                 if ((notSentReview.Comments?.Count ?? 0) > 0)
@@ -116,7 +123,7 @@ namespace MaximEmmBots.Services.ReviewBot
                     {
                         new InlineKeyboardButton
                         {
-                            Text = "Просмотреть отзывы",
+                            Text = model.ViewFeedback,
                             CallbackData = $"comments~{notSentReview.Id}"
                         }
                     });
@@ -124,7 +131,7 @@ namespace MaximEmmBots.Services.ReviewBot
                     notSentReview.Resource != "google")
                     buttons.Add(new List<InlineKeyboardButton>
                     {
-                        new InlineKeyboardButton {Text = "Открыть отзыв", Url = notSentReview.ReplyLink}
+                        new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
                     });
 
                 var chatId = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName).ChatId;
