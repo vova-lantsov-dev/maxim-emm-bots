@@ -42,7 +42,7 @@ namespace MaximEmmBots
                     
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddLocalizationServices(languageDictionary);
-                    serviceCollection.AddChartServices();
+                    serviceCollection.AddStatsBot();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();

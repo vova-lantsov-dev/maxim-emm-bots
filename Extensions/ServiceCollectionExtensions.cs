@@ -5,18 +5,18 @@ using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Options;
 using MaximEmmBots.Services;
-using MaximEmmBots.Services.ChartsBot;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
+using MaximEmmBots.Services.StatsBot;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
-using ChartWorkerService = MaximEmmBots.Services.ChartsBot.WorkerService;
-using Context = MaximEmmBots.Services.Context;
+using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
 
 namespace MaximEmmBots.Extensions
 {
@@ -71,7 +71,7 @@ namespace MaximEmmBots.Extensions
             services.AddHostedService<DistributionBotWorkerService>();
         }
 
-        internal static void AddChartServices(this IServiceCollection services)
+        internal static void AddStatsBot(this IServiceCollection services)
         {
             services.AddSingleton<ChartClient>();
             services.AddHostedService<ChartWorkerService>();

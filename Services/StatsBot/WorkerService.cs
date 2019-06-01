@@ -19,7 +19,7 @@ using Telegram.Bot;
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable ImplicitlyCapturedClosure
 
-namespace MaximEmmBots.Services.ChartsBot
+namespace MaximEmmBots.Services.StatsBot
 {
     internal sealed class WorkerService : BackgroundService
     {
