@@ -75,17 +75,23 @@ namespace MaximEmmBots.Services.ReviewBot
             return Task.Run(() =>
             {
                 foreach (var restaurant in _data.Restaurants)
-                foreach (var (resource, link) in restaurant.Urls)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var processInfo = new ProcessStartInfo
+                    if (restaurant.Urls == null)
+                        continue;
+                    
+                    foreach (var (resource, link) in restaurant.Urls)
                     {
-                        WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
-                        Arguments = string.Format(_data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
-                        FileName = _data.ReviewBot.Script.FileName
-                    };
-                    var process = Process.Start(processInfo);
-                    process?.WaitForExit();
+                        cancellationToken.ThrowIfCancellationRequested();
+                        var processInfo = new ProcessStartInfo
+                        {
+                            WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
+                            Arguments =
+                                string.Format(_data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
+                            FileName = _data.ReviewBot.Script.FileName
+                        };
+                        var process = Process.Start(processInfo);
+                        process?.WaitForExit();
+                    }
                 }
             }, cancellationToken);
         }
