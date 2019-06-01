@@ -27,5 +27,17 @@ namespace MaximEmmBots.Models.Json
         public string Comments { get; set; }
 
         #endregion
+
+        #region ReviewModel
+
+        public string RestaurantAndSourceForReview { get; set; }
+        
+        public string TypeForReview { get; set; }
+        
+        public string RatingForReview { get; set; }
+        
+        public string TextForReview { get; set; }
+
+        #endregion
     }
 }

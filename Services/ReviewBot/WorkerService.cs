@@ -133,9 +133,9 @@ namespace MaximEmmBots.Services.ReviewBot
                     {
                         new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
                     });
-
+                
                 var chatId = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName).ChatId;
-                var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(
+                var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
                         _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource, out var maxValueOfRating)
                             ? maxValueOfRating
                             : -1,
