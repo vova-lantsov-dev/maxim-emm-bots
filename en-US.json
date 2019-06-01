@@ -1,6 +1,6 @@
 {
   "TimeBoardIsNotAvailableForThisMonth": "Schedule for this month is not available.",
-  "WhoWorksAtDate": "<b>{0}</b> {1} works for us:",
+  "WhoWorksAtDate": "Our dream team on <b>{0}</b> at {1} is:",
   "WhoWorksWithYou": "Also {0} work with you:",
   "YouWorkAt": "Dear {0}, *{1}* you work with {2}!",
   "TimeForUserWithTelegram": "<a href=\"tg://user?id={2}\">{0}</a> at {1}",
