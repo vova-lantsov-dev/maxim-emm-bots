@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace MaximEmmBots.Models.Json
+namespace MaximEmmBots.Models.Json.Restaurants.GuestsBot
 {
     internal sealed class GuestsBotData
     {
@@ -9,7 +7,5 @@ namespace MaximEmmBots.Models.Json
         public string TableName { get; set; }
         
         public int ColumnOfName { get; set; }
-        
-        public List<StatData> Stats { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Models.Json.ReviewBot;
 
 namespace MaximEmmBots.Models.Json

@@ -1,8 +1,8 @@
 using System;
 
-namespace MaximEmmBots.Models.Json
+namespace MaximEmmBots.Models.Json.Restaurants.StatsBot
 {
-    internal sealed class StatData
+    internal sealed class StatsBotScheduler
     {
         public string Id { get; set; }
         

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
-using MaximEmmBots.Models.Json.DistributionBot;
+using MaximEmmBots.Models.Json.Restaurants.DistributionBot;
+using MaximEmmBots.Models.Json.Restaurants.GuestsBot;
+using MaximEmmBots.Models.Json.Restaurants.StatsBot;
 
-namespace MaximEmmBots.Models.Json
+namespace MaximEmmBots.Models.Json.Restaurants
 {
     internal sealed class Restaurant
     {
@@ -20,6 +22,8 @@ namespace MaximEmmBots.Models.Json
         public GuestsBotData GuestsBot { get; set; }
         
         public DistributionBotData DistributionBot { get; set; }
+        
+        public StatsBotData StatsBot { get; set; }
 
         public Dictionary<string, string> Urls { get; set; }
     }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
-using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Json.Restaurants;
 using Microsoft.Extensions.Logging;
 using TimeZoneConverter;
 

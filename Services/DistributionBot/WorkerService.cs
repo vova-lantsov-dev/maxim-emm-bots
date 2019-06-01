@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
