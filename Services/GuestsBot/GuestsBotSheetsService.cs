@@ -59,21 +59,30 @@ namespace MaximEmmBots.Services.GuestsBot
                 foreach (var row in response.Values.Skip(1))
                 {
                     if (row.Count <= 1)
+                    {
+                        _logger.LogTrace("Columns count is {0}", row.Count);
                         continue;
+                    }
 
                     if (!DateTime.TryParseExact(row[0].ToString(), "G", russianCulture,
                             DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
-                        continue;
-                    
-                    try
                     {
-                        var filter = Builders<SentForm>.Filter.And(
+                        _logger.LogTrace("Date time convert failed or day not equals");
+                        continue;
+                    }
+
+                    var filter = Builders<SentForm>.Filter.And(
                         Builders<SentForm>.Filter.Eq(f => f.Date, rowDate.Date),
                         Builders<SentForm>.Filter.ElemMatch(f => f.Items, it => it.SentTime == rowDate.TimeOfDay),
                         Builders<SentForm>.Filter.Eq(f => f.RestaurantId, restaurant.ChatId));
                     
+                    try
+                    {
                         if (await _context.SentForms.Find(filter).AnyAsync(stoppingToken))
+                        {
+                            _logger.LogTrace("Form already sent");
                             continue;
+                        }
 
                         await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
                                 .Push(c => c.Items,
@@ -94,7 +103,8 @@ namespace MaximEmmBots.Services.GuestsBot
                     }
                     catch (Exception e)
                     {
-                        // ignored
+                        _logger.LogError(e, "Error occurred while executing guests bot for restaurant id {0}",
+                            restaurant.ChatId);
                     }
                 }
             }
