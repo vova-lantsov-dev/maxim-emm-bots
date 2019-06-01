@@ -1,4 +1,4 @@
-namespace MaximEmmBots.Models.Json
+namespace MaximEmmBots.Models.Json.Restaurants
 {
     internal sealed class CultureData
     {

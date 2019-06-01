@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

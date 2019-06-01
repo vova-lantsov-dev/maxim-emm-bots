@@ -1,4 +1,4 @@
-namespace MaximEmmBots.Models.Json.DistributionBot
+namespace MaximEmmBots.Models.Json.Restaurants.DistributionBot
 {
     internal sealed class DistributionBotData
     {
