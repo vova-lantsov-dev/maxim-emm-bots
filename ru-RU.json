@@ -1,1 +1,8 @@
-{}
+{
+  "TimeBoardIsNotAvailableForThisMonth": "Расписание на этот месяц недоступно.",
+  "WhoWorksAtDate": "<b>{0}</b> у нас {1} работают:",
+  "WhoWorksWithYou": "Также {0} с тобой работают:",
+  "YouWorkAt": "Дорогой(ая/ое) {0}, <b>{1}</b> ты работаешь с {2}!",
+  "TimeForUserWithTelegram": "<a href=\"tg://user?id={2}\">{0}</a> с {1}",
+  "TimeForUserWithoutTelegram": "<b>{0}</b> с {1}"
+}

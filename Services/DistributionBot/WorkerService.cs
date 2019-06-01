@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,20 +13,19 @@ namespace MaximEmmBots.Services.DistributionBot
     internal sealed class WorkerService : BackgroundService
     {
         private readonly DistributionBotSheetsService _distributionBotSheetsService;
-        private readonly IReadOnlyDictionary<string, TimeZoneInfo> _timeZones;
+        private readonly CultureService _cultureService;
         private readonly Data _data;
         private readonly ILogger _logger;
         
         private static readonly TimeSpan Time1D = new TimeSpan(1, 0, 0, 0);
-        private static readonly TimeSpan Time20H = new TimeSpan(20, 0, 0);
         
         public WorkerService(DistributionBotSheetsService distributionBotSheetsService,
-            IReadOnlyDictionary<string, TimeZoneInfo> timeZones,
+            CultureService cultureService,
             IOptions<DataOptions> dataOptions,
             ILoggerFactory loggerFactory)
         {
             _distributionBotSheetsService = distributionBotSheetsService;
-            _timeZones = timeZones;
+            _cultureService = cultureService;
             _data = dataOptions.Value.Data;
             _logger = loggerFactory.CreateLogger("DistributionBotWorkerService");
         }
@@ -41,20 +39,36 @@ namespace MaximEmmBots.Services.DistributionBot
 
         private async Task RunForRestaurantAsync(Restaurant restaurant, CancellationToken stoppingToken)
         {
-            await Task.Delay(GetStartDelay(), stoppingToken);
-
-            while (!stoppingToken.IsCancellationRequested)
+            if (!TimeSpan.TryParseExact(restaurant.DistributionBot.RunAt, "c", _cultureService.CultureFor(restaurant),
+                out var runAt))
             {
-                await _distributionBotSheetsService.ExecuteAsync(restaurant.Culture.TimeZone,
-                    restaurant.Culture.Name, stoppingToken);
-                await Task.Delay(GetStartDelay(), stoppingToken);
+                _logger.LogError("Unable to parse {0}, restaurant id is {1}",
+                    restaurant.DistributionBot.RunAt, restaurant.ChatId);
+                return;
             }
 
             TimeSpan GetStartDelay()
             {
-                var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _timeZones[restaurant.Culture.TimeZone]).TimeOfDay;
-                return currentTime <= Time20H ? Time20H - currentTime : Time20H + (Time1D - currentTime);
+                var currentTime = _cultureService.NowFor(restaurant).TimeOfDay;
+                var startDelay = currentTime <= runAt ? runAt - currentTime : runAt + (Time1D - currentTime);
+                
+                _logger.LogDebug("Start delay is {0}, currentTime is {1}, restaurant id is {2}",
+                    startDelay, currentTime, restaurant.ChatId);
+
+                return startDelay;
             }
+            
+            await Task.Delay(GetStartDelay(), stoppingToken);
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Running for restaurant id {0}", restaurant.ChatId);
+                
+                await _distributionBotSheetsService.ExecuteAsync(restaurant, stoppingToken);
+                await Task.Delay(GetStartDelay(), stoppingToken);
+            }
+            
+            _logger.LogInformation("Canceled for restaurant id {0}", restaurant.ChatId);
         }
     }
 }
