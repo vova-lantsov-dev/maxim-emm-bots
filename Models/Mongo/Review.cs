@@ -2,9 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MaximEmmBots.Models.Json;
 using MaximEmmBots.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+
+// ReSharper disable InvertIf
 
 namespace MaximEmmBots.Models.Mongo
 {
@@ -62,22 +65,26 @@ namespace MaximEmmBots.Models.Mongo
         [BsonElement("type")]
         public string ReviewType { get; set; }
 
-        public string ToString(int maxCountOfStars, bool preferAvatarOverProfileLink)
+        public string ToString(LocalizationModel model, int maxCountOfStars, bool preferAvatarOverProfileLink)
         {
             var result = new StringBuilder();
 
-            result.AppendFormat("_Ресторан:_ *{0}*\n_Источник:_ *{1}*", RestaurantName, Resource);
-            
+            result.AppendFormat(model.RestaurantAndSourceForReview, RestaurantName, Resource);
+
             if (ReviewType != null)
-                result.AppendFormat("\n_Тип отзыва:_ *{0}*", ReviewType);
-                
+            {
+                result.Append('\n');
+                result.AppendFormat(model.TypeForReview, ReviewType);
+            }
+
             var link = !preferAvatarOverProfileLink ? ProfileUrl ?? AuthorAvatar : AuthorAvatar ?? ProfileUrl;
             result.AppendFormat("\n{0} _({1})_",
                 string.IsNullOrWhiteSpace(link) ? AuthorName : $"[{AuthorName}]({link})", Date);
 
             if (Rating > 0)
             {
-                result.Append("\n_Рейтинг:_ ");
+                result.Append('\n');
+                result.Append(model.RatingForReview);
                 result.AppendJoin(string.Empty, Enumerable.Repeat("👍", Rating));
 
                 var emptyStarsCount = maxCountOfStars - Rating;
@@ -94,10 +101,13 @@ namespace MaximEmmBots.Models.Mongo
             }
 
             if (!string.IsNullOrWhiteSpace(Text))
-                result.AppendFormat("\n_Текст:_ {0}", Regex.Replace(Text,
+            {
+                result.Append('\n');
+                result.AppendFormat(model.TextForReview, Regex.Replace(Text,
                     "(?<token>[*_\\\\`\\\\[\\]])",
                     m => $"\\{m.Groups["token"].Value}"));
-            
+            }
+
             return result.ToString();
         }
     }

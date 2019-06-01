@@ -8,5 +8,10 @@
   
   "ViewFeedback": "Посмотреть комментарии",
   "OpenReview": "Открыть отзыв",
-  "Comments": "<b>Комментарии:</b>"
+  "Comments": "<b>Комментарии:</b>",
+  
+  "RestaurantAndSourceForReview": "<b>Ресторан:</b> <b>{0}</b>\\n<i>Источник:</i> <b>{1}</b>",
+  "TypeForReview": "<i>Тип отзыва:</i> <b>{0}</b>",
+  "RatingForReview": "<i>Рейтинг:</i> ",
+  "TextForReview": "<i>Текст:</i> {0}"
 }
