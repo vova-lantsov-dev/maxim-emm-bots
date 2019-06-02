@@ -8,5 +8,7 @@
 
   "ViewFeedback": "View feedback",
   "OpenReview": "Open review",
-  "Comments": "<b>Comments:</b>"
+  "Comments": "<b>Comments:</b>",
+  
+  "ResponseToReviewSent": "Response to review successfully sent!"
 }
