@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -30,7 +29,6 @@ namespace MaximEmmBots.Services
         private readonly Context _context;
         private readonly ILogger<BotHandler> _logger;
         private readonly HttpClient _httpClient;
-        private readonly IReadOnlyDictionary<string, LocalizationModel> _models;
         private readonly CultureService _cultureService;
         private readonly DistributionBotSheetsService _distributionBotSheetsService;
         
@@ -39,7 +37,6 @@ namespace MaximEmmBots.Services
             IOptions<DataOptions> dataOptions,
             Context context,
             HttpClient httpClient,
-            IReadOnlyDictionary<string, LocalizationModel> models,
             CultureService cultureService,
             DistributionBotSheetsService distributionBotSheetsService)
         {
@@ -48,7 +45,6 @@ namespace MaximEmmBots.Services
             _data = dataOptions.Value.Data;
             _context = context;
             _httpClient = httpClient;
-            _models = models;
             _cultureService = cultureService;
             _distributionBotSheetsService = distributionBotSheetsService;
         }
@@ -71,7 +67,7 @@ namespace MaximEmmBots.Services
                         break;
                     }
 
-                    var model = _models[restaurant.Culture.Name];
+                    var model = _cultureService.ModelFor(restaurant);
                     
                     var separated = q.Data.Split('~');
                     if (separated.Length == 0)
@@ -115,8 +111,7 @@ namespace MaximEmmBots.Services
                 }
 
                 case UpdateType.Message
-                    when update.Message.Type == MessageType.Text &&
-                         update.Message.ReplyToMessage != null:
+                    when update.Message.Type == MessageType.Text:
                 {
                     var m = update.Message;
                     
@@ -127,7 +122,7 @@ namespace MaximEmmBots.Services
                         if (!restaurant.AdminIds.Contains(m.From.Id))
                             break;
 
-                        var model = _models[restaurant.Culture.Name];
+                        var model = _cultureService.ModelFor(restaurant);
 
                         var googleReviewMessage = await _context.GoogleReviewMessages
                             .Find(grm => grm.MessageId == m.ReplyToMessage.MessageId &&
@@ -217,7 +212,7 @@ namespace MaximEmmBots.Services
                     if (restaurant == default)
                         break;
 
-                    var model = _models[restaurant.Culture.Name];
+                    var model = _cultureService.ModelFor(restaurant);
                     
                     foreach (var member in m.NewChatMembers)
                     {

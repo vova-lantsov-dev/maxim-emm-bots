@@ -24,17 +24,19 @@ namespace MaximEmmBots.Services.ReviewBot
         private readonly Data _data;
         private readonly Context _context;
         private readonly ITelegramBotClient _client;
-        private readonly IReadOnlyDictionary<string, LocalizationModel> _models;
+        private readonly CultureService _cultureService;
         
         public WorkerService(IOptions<DataOptions> options,
             ILoggerFactory loggerFactory,
             Context context,
-            ITelegramBotClient client)
+            ITelegramBotClient client,
+            CultureService cultureService)
         {
             _data = options.Value.Data;
             _logger = loggerFactory.CreateLogger("ReviewBotWorkerService");
             _context = context;
             _client = client;
+            _cultureService = cultureService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -115,7 +117,7 @@ namespace MaximEmmBots.Services.ReviewBot
                 if (restaurant == default)
                     continue;
 
-                var model = _models[restaurant.Culture.Name];
+                var model = _cultureService.ModelFor(restaurant);
                 
                 var buttons = new List<List<InlineKeyboardButton>>();
                 if ((notSentReview.Comments?.Count ?? 0) > 0)

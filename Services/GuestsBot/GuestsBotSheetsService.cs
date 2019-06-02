@@ -28,7 +28,8 @@ namespace MaximEmmBots.Services.GuestsBot
             IOptions<DataOptions> dataOptions,
             Context context,
             ILogger<GoogleSheetsService> logger,
-            GoogleSheetsService googleSheetsService, CultureService cultureService)
+            GoogleSheetsService googleSheetsService,
+            CultureService cultureService)
         {
             _client = client;
             _data = dataOptions.Value.Data;
