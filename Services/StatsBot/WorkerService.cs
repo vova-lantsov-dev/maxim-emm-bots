@@ -166,9 +166,10 @@ namespace MaximEmmBots.Services.StatsBot
                 await using (var ms = new MemoryStream())
                 {
                     await _chartClient.LoadDoughnutPieChartAsync(ms, pieChartItems);
+                    var model = _cultureService.ModelFor(restaurant);
                     await _client.SendPhotoAsync(restaurant.ChatId, ms,
-                        $"График заполнения форм за {(lastStat + sendAt).ToString("G", culture)}-{now.ToString("G", culture)}",
-                        cancellationToken: stoppingToken);
+                        string.Format(model.StatsForPeriod, (lastStat + sendAt).ToString("G", culture),
+                            now.ToString("G", culture)), cancellationToken: stoppingToken);
                 }
 
                 lastStat = now.Date;
