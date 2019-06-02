@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Models.Mongo;
 using Microsoft.Extensions.Logging;
@@ -19,21 +18,18 @@ namespace MaximEmmBots.Services.DistributionBot
     {
         private readonly ITelegramBotClient _client;
         private readonly ILogger<GoogleSheetsService> _logger;
-        private readonly IReadOnlyDictionary<string, LocalizationModel> _localizationModels;
         private readonly GoogleSheetsService _googleSheetsService;
         private readonly CultureService _cultureService;
         private readonly Context _context;
 
         public DistributionBotSheetsService(ITelegramBotClient client,
             ILogger<GoogleSheetsService> logger,
-            IReadOnlyDictionary<string, LocalizationModel> localizationModels,
             GoogleSheetsService googleSheetsService,
             CultureService cultureService,
             Context context)
         {
             _client = client;
             _logger = logger;
-            _localizationModels = localizationModels;
             _googleSheetsService = googleSheetsService;
             _cultureService = cultureService;
             _context = context;
@@ -60,7 +56,7 @@ namespace MaximEmmBots.Services.DistributionBot
             var forDate = requestedDate ?? _cultureService.NowFor(restaurant).AddDays(1d);
             var culture = _cultureService.CultureFor(restaurant);
             var monthName = culture.DateTimeFormat.GetMonthName(forDate.Month);
-            var model = _localizationModels[restaurant.Culture.Name];
+            var model = _cultureService.ModelFor(restaurant);
             
             _logger.LogDebug("Tomorrow is {0}, restaurant id is {1}", forDate, restaurant.ChatId);
             

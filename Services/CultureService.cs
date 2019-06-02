@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
+using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
 using Microsoft.Extensions.Logging;
 using TimeZoneConverter;
@@ -15,10 +17,13 @@ namespace MaximEmmBots.Services
             new ConcurrentDictionary<string, Lazy<TimeZoneInfo>>();
         
         private readonly ILogger<CultureService> _logger;
+        private readonly IReadOnlyDictionary<string, LocalizationModel> _models;
 
-        public CultureService(ILogger<CultureService> logger)
+        public CultureService(ILogger<CultureService> logger,
+            IReadOnlyDictionary<string, LocalizationModel> models)
         {
             _logger = logger;
+            _models = models;
         }
 
         internal CultureInfo CultureFor(Restaurant restaurant)
@@ -27,7 +32,7 @@ namespace MaximEmmBots.Services
             return _cultures.GetOrAdd(restaurant.Culture.Name, CultureInfoInitializer).Value;
         }
 
-        internal TimeZoneInfo TimeZoneFor(Restaurant restaurant)
+        private TimeZoneInfo TimeZoneFor(Restaurant restaurant)
         {
             _logger.LogDebug("Get time zone for {0}: {1}", restaurant.ChatId, restaurant.Culture.TimeZone);
             return _timeZones.GetOrAdd(restaurant.Culture.TimeZone, TimeZoneInitializer).Value;
@@ -37,6 +42,12 @@ namespace MaximEmmBots.Services
         {
             _logger.LogDebug("Get now for {0}", restaurant.ChatId);
             return TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneFor(restaurant));
+        }
+
+        internal LocalizationModel ModelFor(Restaurant restaurant)
+        {
+            _logger.LogDebug("Get localization model for {0}", restaurant.ChatId);
+            return _models[restaurant.Culture.Name];
         }
 
         #region Extensions
