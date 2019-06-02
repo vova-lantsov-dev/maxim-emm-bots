@@ -49,5 +49,11 @@ namespace MaximEmmBots.Models.Json
         public string NewMemberForAdmin { get; set; }
 
         #endregion
+
+        #region StatsBot
+
+        public string StatsForPeriod { get; set; }
+
+        #endregion
     }
 }
