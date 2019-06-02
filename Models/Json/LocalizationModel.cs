@@ -39,5 +39,11 @@ namespace MaximEmmBots.Models.Json
         public string TextForReview { get; set; }
 
         #endregion
+
+        #region BotHandler
+
+        public string ResponseToReviewSent { get; set; }
+
+        #endregion
     }
 }

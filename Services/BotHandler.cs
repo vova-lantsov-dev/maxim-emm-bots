@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
@@ -28,18 +29,21 @@ namespace MaximEmmBots.Services
         private readonly Context _context;
         private readonly ILogger<BotHandler> _logger;
         private readonly HttpClient _httpClient;
+        private readonly IReadOnlyDictionary<string, LocalizationModel> _models;
         
         public BotHandler(ILogger<BotHandler> logger,
             ITelegramBotClient client,
             IOptions<DataOptions> dataOptions,
             Context context,
-            HttpClient httpClient)
+            HttpClient httpClient,
+            IReadOnlyDictionary<string, LocalizationModel> models)
         {
             _logger = logger;
             _client = client;
             _restaurants = dataOptions.Value.Data.Restaurants;
             _context = context;
             _httpClient = httpClient;
+            _models = models;
         }
         
         public async Task HandleUpdate(Update update, CancellationToken cancellationToken)
@@ -48,10 +52,19 @@ namespace MaximEmmBots.Services
             {
                 case UpdateType.CallbackQuery when update.CallbackQuery.Message != null:
                 {
+                    _logger.LogInformation("Callback query received from user {0} in chat {1}, data is {2}",
+                        update.CallbackQuery.From.Id, update.CallbackQuery.Message.Chat.Id,
+                        update.CallbackQuery.Data);
+                    
                     var q = update.CallbackQuery;
-                    var chatId = _restaurants.Find(r => r.ChatId == q.Message.Chat.Id)?.ChatId ?? -1L;
-                    if (chatId == -1L)
+                    var restaurant = _restaurants.Find(r => r.ChatId == q.Message.Chat.Id);
+                    if (restaurant == default)
+                    {
+                        _logger.LogDebug("Restaurant is null, breaking this update");
                         break;
+                    }
+
+                    var model = _models[restaurant.Culture.Name];
                     
                     var separated = q.Data.Split('~');
                     if (separated.Length == 0)
@@ -64,13 +77,16 @@ namespace MaximEmmBots.Services
                             var review = await _context.Reviews.Find(r => r.Id == separated[1])
                                 .SingleOrDefaultAsync(cancellationToken);
                             if (review == default)
+                            {
+                                _logger.LogDebug("Review for this command was not found");
                                 break;
+                            }
 
-                            await _client.EditMessageTextAsync(chatId, q.Message.MessageId,
-                                string.Concat(review, "\n\n", "*Комментарии:*", "\n\n",
+                            await _client.EditMessageTextAsync(restaurant.ChatId, q.Message.MessageId,
+                                string.Concat(review, "\n\n", model.Comments, "\n\n",
                                     string.Join("\n\n", review.Comments)),
                                 ParseMode.Markdown, replyMarkup: !review.IsReadOnly && review.ReplyLink != null
-                                    ? new InlineKeyboardButton {Text = "Открыть отзыв", Url = review.ReplyLink}
+                                    ? new InlineKeyboardButton {Text = model.OpenReview, Url = review.ReplyLink}
                                     : null, cancellationToken: cancellationToken);
 
                             break;
@@ -78,11 +94,9 @@ namespace MaximEmmBots.Services
 
                         default:
                         {
-                            await _client.SendTextMessageAsync(chatId,
-                                string.Concat($"*Received bad request*\n\n```separated[1] == \"{separated[1]}\"```\n\n",
-                                    "Maybe, something works wrong. Please, contact the developer."),
-                                ParseMode.Markdown, cancellationToken: cancellationToken);
-
+                            _logger.LogWarning("Received bad request. separated[1] == \"{0}\". \n\nMaybe, " +
+                                               "something works wrong. Please, contact the developer.\n\nChat id is {1}",
+                                separated[1], restaurant.ChatId);
                             break;
                         }
                     }
@@ -102,6 +116,8 @@ namespace MaximEmmBots.Services
                     if (restaurant == default || !restaurant.AdminIds.Contains(m.From.Id))
                         break;
 
+                    var model = _models[restaurant.Culture.Name];
+
                     var googleReviewMessage = await _context.GoogleReviewMessages
                         .Find(grm => grm.MessageId == m.ReplyToMessage.MessageId &&
                                      grm.ChatId == m.Chat.Id).FirstOrDefaultAsync(cancellationToken);
@@ -120,7 +136,10 @@ namespace MaximEmmBots.Services
                     var googleCredential = await _context.GoogleCredentials.Find(gc => gc.Name == "google")
                         .FirstOrDefaultAsync(cancellationToken);
                     if (googleCredential == default)
+                    {
+                        _logger.LogDebug("Google credential not found");
                         return;
+                    }
 
                     var jsonContent = JsonSerializer.ToString(new { comment = update.Message.Text });
 
@@ -130,7 +149,7 @@ namespace MaximEmmBots.Services
                     httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                     await _httpClient.SendAsync(httpRequest, cancellationToken);
                     
-                    await _client.SendTextMessageAsync(m.Chat, "Ответ на отзыв успешно отправлен!",
+                    await _client.SendTextMessageAsync(m.Chat, model.ResponseToReviewSent,
                         replyToMessageId: m.MessageId, cancellationToken: cancellationToken);
                     
                     break;
