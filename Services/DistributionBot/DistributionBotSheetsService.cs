@@ -6,7 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
+using MaximEmmBots.Models.Mongo;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -19,30 +22,49 @@ namespace MaximEmmBots.Services.DistributionBot
         private readonly IReadOnlyDictionary<string, LocalizationModel> _localizationModels;
         private readonly GoogleSheetsService _googleSheetsService;
         private readonly CultureService _cultureService;
+        private readonly Context _context;
 
         public DistributionBotSheetsService(ITelegramBotClient client,
             ILogger<GoogleSheetsService> logger,
             IReadOnlyDictionary<string, LocalizationModel> localizationModels,
             GoogleSheetsService googleSheetsService,
-            CultureService cultureService)
+            CultureService cultureService,
+            Context context)
         {
             _client = client;
             _logger = logger;
             _localizationModels = localizationModels;
             _googleSheetsService = googleSheetsService;
             _cultureService = cultureService;
+            _context = context;
         }
 
-        internal async Task ExecuteAsync(Restaurant restaurant, CancellationToken stoppingToken, int userId = 0)
+        internal Task ExecuteManyAsync(ICollection<Restaurant> restaurants, CancellationToken stoppingToken,
+            int userId, DateTime? requestedDate = null)
         {
-            var tomorrow = _cultureService.NowFor(restaurant).AddDays(1d);
+            if (restaurants.Count == 0)
+                return Task.CompletedTask;
+
+            var tasks = new Task[restaurants.Count];
+            var position = 0;
+            
+            foreach (var restaurant in restaurants)
+                tasks[position++] = ExecuteAsync(restaurant, stoppingToken, requestedDate, userId);
+
+            return Task.WhenAll(tasks);
+        }
+
+        internal async Task ExecuteAsync(Restaurant restaurant, CancellationToken stoppingToken,
+            DateTime? requestedDate = null, int userId = 0)
+        {
+            var forDate = requestedDate ?? _cultureService.NowFor(restaurant).AddDays(1d);
             var culture = _cultureService.CultureFor(restaurant);
-            var monthName = culture.DateTimeFormat.GetMonthName(tomorrow.Month);
+            var monthName = culture.DateTimeFormat.GetMonthName(forDate.Month);
             var model = _localizationModels[restaurant.Culture.Name];
             
-            _logger.LogDebug("Tomorrow is {0}, restaurant id is {1}", tomorrow, restaurant.ChatId);
+            _logger.LogDebug("Tomorrow is {0}, restaurant id is {1}", forDate, restaurant.ChatId);
             
-            var range = $"{monthName} {tomorrow:MM/yyyy}!$A$1:$YY";
+            var range = $"{monthName} {forDate:MM/yyyy}!$A$1:$YY";
             var response =
                 await _googleSheetsService.GetValueRangeAsync(restaurant.DistributionBot.SpreadsheetId, range,
                     stoppingToken);
@@ -55,8 +77,8 @@ namespace MaximEmmBots.Services.DistributionBot
                 return;
             }
 
-            var day = tomorrow.Day;
-            var dateText = tomorrow.ToString("D", culture);
+            var day = forDate.Day;
+            var dateText = forDate.ToString("D", culture);
             var privates = new Dictionary<int, string>();
             var users = new List<(int userId, string name, string time)>();
             
@@ -148,6 +170,19 @@ namespace MaximEmmBots.Services.DistributionBot
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Unable to send a message to private chat");
+                }
+
+                try
+                {
+
+                    await _context.UserRestaurantPairs.UpdateOneAsync(ur => ur.RestaurantId == restaurant.ChatId &&
+                                                                            ur.UserId == privateUserId,
+                        Builders<UserRestaurantPair>.Update.SetOnInsert(ur => ur.Id, ObjectId.GenerateNewId()),
+                        new UpdateOptions {IsUpsert = true}, stoppingToken);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Unable to save user id to UserRestaurantPairs");
                 }
             }
 

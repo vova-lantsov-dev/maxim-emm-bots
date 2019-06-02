@@ -15,6 +15,7 @@ namespace MaximEmmBots.Services
         internal readonly IMongoCollection<Credential> GoogleCredentials;
         internal readonly IMongoCollection<SentForm> SentForms;
         internal readonly IMongoCollection<SentStat> SentStats;
+        internal readonly IMongoCollection<UserRestaurantPair> UserRestaurantPairs;
         
         public Context(IOptions<DataOptions> options, ILogger<Context> logger)
         {
@@ -28,6 +29,7 @@ namespace MaximEmmBots.Services
             GoogleCredentials = db.GetCollection<Credential>("credentials");
             SentForms = db.GetCollection<SentForm>(nameof(SentForms));
             SentStats = db.GetCollection<SentStat>(nameof(SentStats));
+            UserRestaurantPairs = db.GetCollection<UserRestaurantPair>(nameof(UserRestaurantPairs));
             
             logger.LogTrace("Context initialization finished");
         }
