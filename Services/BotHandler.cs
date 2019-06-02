@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
-using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,7 +24,7 @@ namespace MaximEmmBots.Services
     internal sealed class BotHandler : IUpdateHandler
     {
         private readonly ITelegramBotClient _client;
-        private readonly List<Restaurant> _restaurants;
+        private readonly Data _data;
         private readonly Context _context;
         private readonly ILogger<BotHandler> _logger;
         private readonly HttpClient _httpClient;
@@ -40,7 +39,7 @@ namespace MaximEmmBots.Services
         {
             _logger = logger;
             _client = client;
-            _restaurants = dataOptions.Value.Data.Restaurants;
+            _data = dataOptions.Value.Data;
             _context = context;
             _httpClient = httpClient;
             _models = models;
@@ -57,7 +56,7 @@ namespace MaximEmmBots.Services
                         update.CallbackQuery.Data);
                     
                     var q = update.CallbackQuery;
-                    var restaurant = _restaurants.Find(r => r.ChatId == q.Message.Chat.Id);
+                    var restaurant = _data.Restaurants.Find(r => r.ChatId == q.Message.Chat.Id);
                     if (restaurant == default)
                     {
                         _logger.LogDebug("Restaurant is null, breaking this update");
@@ -112,7 +111,7 @@ namespace MaximEmmBots.Services
                          update.Message.ReplyToMessage != null:
                 {
                     var m = update.Message;
-                    var restaurant = _restaurants.Find(r => r.ChatId == m.Chat.Id);
+                    var restaurant = _data.Restaurants.Find(r => r.ChatId == m.Chat.Id);
                     if (restaurant == default || !restaurant.AdminIds.Contains(m.From.Id))
                         break;
 
@@ -152,6 +151,47 @@ namespace MaximEmmBots.Services
                     await _client.SendTextMessageAsync(m.Chat, model.ResponseToReviewSent,
                         replyToMessageId: m.MessageId, cancellationToken: cancellationToken);
                     
+                    break;
+                }
+
+                case UpdateType.Message when update.Message.Type == MessageType.ChatMembersAdded:
+                {
+                    var m = update.Message;
+                    var restaurant = _data.Restaurants.Find(r => r.ChatId == m.Chat.Id);
+                    if (restaurant == default)
+                        break;
+
+                    var model = _models[restaurant.Culture.Name];
+                    
+                    foreach (var member in m.NewChatMembers)
+                    {
+                        try
+                        {
+                            var text = string.Format(model.NewMemberInGroup, member.FirstName, member.Id,
+                                _data.Bot.Username);
+                            await _client.SendTextMessageAsync(m.Chat, text, ParseMode.Html,
+                                cancellationToken: cancellationToken);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "Cannot send a message to group with id {0}", m.Chat.Id);
+                        }
+
+                        var adminText = string.Format(model.NewMemberForAdmin, member.Id, member.FirstName,
+                            member.LastName, restaurant.Name);
+                        foreach (var adminId in restaurant.AdminIds)
+                        {
+                            try
+                            {
+                                await _client.SendTextMessageAsync(adminId, adminText, ParseMode.Html,
+                                    cancellationToken: cancellationToken);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e, "Cannot send a message to private chat with id {0}", adminId);
+                            }
+                        }
+                    }
                     break;
                 }
             }

@@ -43,6 +43,10 @@ namespace MaximEmmBots.Models.Json
         #region BotHandler
 
         public string ResponseToReviewSent { get; set; }
+        
+        public string NewMemberInGroup { get; set; }
+        
+        public string NewMemberForAdmin { get; set; }
 
         #endregion
     }
