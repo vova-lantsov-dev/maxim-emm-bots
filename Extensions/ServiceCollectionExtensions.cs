@@ -43,7 +43,7 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton<IUpdateHandler, BotHandler>();
             services.AddHostedService<BotHandlerService>();
             
-            services.AddHttpClient<BotHandler>()
+            services.AddHttpClient<IUpdateHandler, BotHandler>()
                 .AddTransientHttpErrorPolicy(policyBuilder =>
                     policyBuilder.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(3d)));
         }
