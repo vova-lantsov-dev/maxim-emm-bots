@@ -136,13 +136,13 @@ namespace MaximEmmBots.Services.ReviewBot
                         new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
                     });
                 
-                var chatId = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName).ChatId;
+                var chatId = restaurant.ChatId;
                 var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
                         _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource, out var maxValueOfRating)
                             ? maxValueOfRating
                             : -1,
                         _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                    ParseMode.Markdown, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                    ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
                         ? new InlineKeyboardMarkup(buttons)
                         : null);
 
@@ -153,7 +153,6 @@ namespace MaximEmmBots.Services.ReviewBot
 
                 await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
                     Builders<Review>.Update.Set(r => r.NeedToShow, false));
-                            
             }
         }
     }
