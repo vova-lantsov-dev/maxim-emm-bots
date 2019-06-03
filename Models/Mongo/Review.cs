@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Serializers;
 using MongoDB.Bson;
@@ -78,8 +77,8 @@ namespace MaximEmmBots.Models.Mongo
             }
 
             var link = !preferAvatarOverProfileLink ? ProfileUrl ?? AuthorAvatar : AuthorAvatar ?? ProfileUrl;
-            result.AppendFormat("\n{0} _({1})_",
-                string.IsNullOrWhiteSpace(link) ? AuthorName : $"[{AuthorName}]({link})", Date);
+            result.AppendFormat("\n{0} <i>({1})</i>",
+                string.IsNullOrWhiteSpace(link) ? AuthorName : $"<a href=\"{link}\">{AuthorName}</a>", Date);
 
             if (Rating > 0)
             {
