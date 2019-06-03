@@ -7,7 +7,7 @@ namespace MaximEmmBots.Extensions
         internal static void Configure(ILoggingBuilder loggingBuilder)
         {
             loggingBuilder.AddConsole();
-            loggingBuilder.SetMinimumLevel(LogLevel.Information);
+            loggingBuilder.SetMinimumLevel(LogLevel.Trace);
         }
     }
 }

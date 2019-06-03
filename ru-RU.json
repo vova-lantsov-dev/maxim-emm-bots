@@ -1,0 +1,23 @@
+{
+  "TimeBoardIsNotAvailableForThisMonth": "Расписание на этот месяц недоступно.",
+  "WhoWorksAtDate": "<b>{0}</b> у нас {1} работают:",
+  "WhoWorksWithYou": "Также {0} с тобой работают:",
+  "YouWorkAt": "Дорогой(ая/ое) {0}, <b>{1}</b> ты работаешь с {2}!",
+  "TimeForUserWithTelegram": "<a href=\"tg://user?id={2}\">{0}</a> с {1}",
+  "TimeForUserWithoutTelegram": "<b>{0}</b> с {1}",
+  
+  "ViewFeedback": "Посмотреть комментарии",
+  "OpenReview": "Открыть отзыв",
+  "Comments": "<b>Комментарии:</b>",
+  
+  "RestaurantAndSourceForReview": "<b>Ресторан:</b> <b>{0}</b>\n<i>Источник:</i> <b>{1}</b>",
+  "TypeForReview": "<i>Тип отзыва:</i> <b>{0}</b>",
+  "RatingForReview": "<i>Рейтинг:</i> ",
+  "TextForReview": "<i>Текст:</i> {0}",
+  
+  "ResponseToReviewSent": "Ответ на отзыв успешно отправлен!",
+  "NewMemberInGroup": "У нас появился новый сотрудник, поприветствуем!\n<a href=\"tg://user?id={1}\">{0}</a>, у нас работает Искусственный Разум, который будет напоминать ежедневно, кто, где и со скольки работает!\n{0}, для получения персональных сообщений ткни на {2} и нажми Старт/Начать.",
+  "NewMemberForAdmin": "<b>НОВЫЙ СОТРУДНИК</b>\n<a href=\"tg://user?id={0}\">Профиль</a>\nПолное имя: {1} {2}\nId: {0}",
+  
+  "StatsForPeriod": "<b>График заполнения форм за {0}-{1}</b>"
+}

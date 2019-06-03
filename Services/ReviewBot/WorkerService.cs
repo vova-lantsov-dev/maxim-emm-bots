@@ -20,22 +20,29 @@ namespace MaximEmmBots.Services.ReviewBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly ILogger<WorkerService> _logger;
+        private readonly ILogger _logger;
         private readonly Data _data;
         private readonly Context _context;
-        private readonly TelegramBotClient _client;
+        private readonly ITelegramBotClient _client;
+        private readonly CultureService _cultureService;
         
-        public WorkerService(IOptions<DataOptions> options, ILogger<WorkerService> logger,
-            Context context, TelegramBotClient client)
+        public WorkerService(IOptions<DataOptions> options,
+            ILoggerFactory loggerFactory,
+            Context context,
+            ITelegramBotClient client,
+            CultureService cultureService)
         {
             _data = options.Value.Data;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger("ReviewBotWorkerService");
             _context = context;
             _client = client;
+            _cultureService = cultureService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Starting ReviewBotWorkerService...");
+            
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -71,17 +78,23 @@ namespace MaximEmmBots.Services.ReviewBot
             return Task.Run(() =>
             {
                 foreach (var restaurant in _data.Restaurants)
-                foreach (var (resource, link) in restaurant.Urls)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var processInfo = new ProcessStartInfo
+                    if (restaurant.Urls == null)
+                        continue;
+                    
+                    foreach (var (resource, link) in restaurant.Urls)
                     {
-                        WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
-                        Arguments = string.Format(_data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
-                        FileName = _data.ReviewBot.Script.FileName
-                    };
-                    var process = Process.Start(processInfo);
-                    process?.WaitForExit();
+                        cancellationToken.ThrowIfCancellationRequested();
+                        var processInfo = new ProcessStartInfo
+                        {
+                            WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
+                            Arguments =
+                                string.Format(_data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
+                            FileName = _data.ReviewBot.Script.FileName
+                        };
+                        var process = Process.Start(processInfo);
+                        process?.WaitForExit();
+                    }
                 }
             }, cancellationToken);
         }
@@ -99,6 +112,12 @@ namespace MaximEmmBots.Services.ReviewBot
             foreach (var notSentReview in notSentReviews)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                var restaurant = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName);
+                if (restaurant == default)
+                    continue;
+
+                var model = _cultureService.ModelFor(restaurant);
                 
                 var buttons = new List<List<InlineKeyboardButton>>();
                 if ((notSentReview.Comments?.Count ?? 0) > 0)
@@ -106,7 +125,7 @@ namespace MaximEmmBots.Services.ReviewBot
                     {
                         new InlineKeyboardButton
                         {
-                            Text = "Просмотреть отзывы",
+                            Text = model.ViewFeedback,
                             CallbackData = $"comments~{notSentReview.Id}"
                         }
                     });
@@ -114,16 +133,16 @@ namespace MaximEmmBots.Services.ReviewBot
                     notSentReview.Resource != "google")
                     buttons.Add(new List<InlineKeyboardButton>
                     {
-                        new InlineKeyboardButton {Text = "Открыть отзыв", Url = notSentReview.ReplyLink}
+                        new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
                     });
-
-                var chatId = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName).ChatId;
-                var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(
+                
+                var chatId = restaurant.ChatId;
+                var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
                         _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource, out var maxValueOfRating)
                             ? maxValueOfRating
                             : -1,
                         _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                    ParseMode.Markdown, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                    ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
                         ? new InlineKeyboardMarkup(buttons)
                         : null);
 
@@ -134,7 +153,6 @@ namespace MaximEmmBots.Services.ReviewBot
 
                 await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
                     Builders<Review>.Update.Set(r => r.NeedToShow, false));
-                            
             }
         }
     }

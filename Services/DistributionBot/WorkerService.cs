@@ -1,40 +1,75 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MaximEmmBots.Models.Json;
+using MaximEmmBots.Models.Json.Restaurants;
+using MaximEmmBots.Options;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MaximEmmBots.Services.DistributionBot
 {
     internal sealed class WorkerService : BackgroundService
     {
-        private readonly DistributionService _distributionService;
+        private readonly DistributionBotSheetsService _distributionBotSheetsService;
+        private readonly CultureService _cultureService;
+        private readonly Data _data;
+        private readonly ILogger _logger;
         
         private static readonly TimeSpan Time1D = new TimeSpan(1, 0, 0, 0);
-        private static readonly TimeSpan Time20H = new TimeSpan(20, 0, 0);
         
-        private static TimeSpan StartDelay
+        public WorkerService(DistributionBotSheetsService distributionBotSheetsService,
+            CultureService cultureService,
+            IOptions<DataOptions> dataOptions,
+            ILoggerFactory loggerFactory)
         {
-            get
+            _distributionBotSheetsService = distributionBotSheetsService;
+            _cultureService = cultureService;
+            _data = dataOptions.Value.Data;
+            _logger = loggerFactory.CreateLogger("DistributionBotWorkerService");
+        }
+        
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Starting DistributionBotWorkerService...");
+            
+            return Task.WhenAll(_data.Restaurants.Select(r => RunForRestaurantAsync(r, stoppingToken)));
+        }
+
+        private async Task RunForRestaurantAsync(Restaurant restaurant, CancellationToken stoppingToken)
+        {
+            if (!TimeSpan.TryParseExact(restaurant.DistributionBot.RunAt, "c", _cultureService.CultureFor(restaurant),
+                out var runAt))
             {
-                var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, DistributionService.ZoneInfo).TimeOfDay;
-                return currentTime <= Time20H ? Time20H - currentTime : Time20H + (Time1D - currentTime);
+                _logger.LogError("Unable to parse {0}, restaurant id is {1}",
+                    restaurant.DistributionBot.RunAt, restaurant.ChatId);
+                return;
             }
-        }
-        
-        public WorkerService(DistributionService distributionService)
-        {
-            _distributionService = distributionService;
-        }
-        
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            await Task.Delay(StartDelay, stoppingToken);
+
+            TimeSpan GetStartDelay()
+            {
+                var currentTime = _cultureService.NowFor(restaurant).TimeOfDay;
+                var startDelay = currentTime <= runAt ? runAt - currentTime : runAt + (Time1D - currentTime);
+                
+                _logger.LogDebug("Start delay is {0}, currentTime is {1}, restaurant id is {2}",
+                    startDelay, currentTime, restaurant.ChatId);
+
+                return startDelay;
+            }
+            
+            await Task.Delay(GetStartDelay(), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await _distributionService.ExecuteAsync(stoppingToken);
-                await Task.Delay(StartDelay, stoppingToken);
+                _logger.LogInformation("Running for restaurant id {0}", restaurant.ChatId);
+                
+                await _distributionBotSheetsService.ExecuteAsync(restaurant, stoppingToken);
+                await Task.Delay(GetStartDelay(), stoppingToken);
             }
+            
+            _logger.LogInformation("Canceled for restaurant id {0}", restaurant.ChatId);
         }
     }
 }

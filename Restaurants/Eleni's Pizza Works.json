@@ -1,0 +1,41 @@
+{
+  "ChatId": -1001463899405,
+  "AdminIds": [ 7839120, 336510341 ],
+  "PlaceInfo": "Eleni's Pizza Works",
+  
+  "GuestsBot": {
+    "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
+    "TableName": "Ответы на форму (1)",
+    "ColumnOfName": 3
+  },
+  "StatsBot": {
+    "Schedulers": [
+      {
+        "Id": "Daily",
+        "SendAt": "07:00:00",
+        "TakeDays": 1
+      },
+      {
+        "Id": "Weekly",
+        "SendAt": "07:00:00",
+        "StartFromDayOfWeek": 1,
+        "TakeDays": 7
+      },
+      {
+        "Id": "4Weeks",
+        "SendAt": "07:00:00",
+        "StartFromDayOfWeek": 1,
+        "TakeDays": 28
+      }
+    ]
+  },
+  "DistributionBot": {
+    "SpreadsheetId": "1GjJtk_K64jXamzA3wVISEYUiSdsinzhVthWEg7FKx9k",
+    "RunAt": "20:00:00"
+  },
+  
+  "Culture": {
+    "Name": "en-US",
+    "TimeZone": "America/New_York"
+  }
+}

@@ -1,11 +1,9 @@
 using System.Text.Json.Serialization;
 
-namespace MaximEmmBots.Models.Json.Distribution
+namespace MaximEmmBots.Models.Json
 {
-    internal sealed class SpreadsheetData
+    internal sealed class GoogleCredentials
     {
-        public string Id { get; set; }
-        
         [JsonPropertyName("client_id")]
         public string ClientId { get; set; }
         
