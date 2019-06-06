@@ -68,9 +68,9 @@ namespace MaximEmmBots.Services.StatsBot
                 return;
             }
 
-            if (statScheduler.TakeDays < 1 || statScheduler.TakeDays > 7)
+            if (statScheduler.TakeDays < 1)
             {
-                _logger.LogError("TakeData is lower than 1 or greater than 7");
+                _logger.LogError("TakeData is lower than 1");
                 return;
             }
 
