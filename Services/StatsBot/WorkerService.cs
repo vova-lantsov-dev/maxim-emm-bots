@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable AccessToModifiedClosure
@@ -169,7 +170,7 @@ namespace MaximEmmBots.Services.StatsBot
                     var model = _cultureService.ModelFor(restaurant);
                     await _client.SendPhotoAsync(restaurant.ChatId, ms,
                         string.Format(model.StatsForPeriod, (lastStat + sendAt).ToString("G", culture),
-                            now.ToString("G", culture)), cancellationToken: stoppingToken);
+                            now.ToString("G", culture)), ParseMode.Html, cancellationToken: stoppingToken);
                 }
 
                 lastStat = now.Date;
