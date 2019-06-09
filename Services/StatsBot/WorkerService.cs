@@ -156,12 +156,7 @@ namespace MaximEmmBots.Services.StatsBot
                 var pieChartItems = new List<PieChartItem>();
                 foreach (var (employeeName, weight) in pieChartDictionary)
                 {
-                    pieChartItems.Add(new PieChartItem
-                    {
-                        Legend = weight.ToString(),
-                        Text = employeeName,
-                        Weight = weight
-                    });
+                    pieChartItems.Add(new PieChartItem(weight, employeeName));
                 }
 
                 await using (var ms = new MemoryStream())

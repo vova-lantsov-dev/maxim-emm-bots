@@ -1,11 +1,15 @@
 namespace MaximEmmBots.Models.Charts
 {
-    internal sealed class PieChartItem
+    internal readonly struct PieChartItem
     {
-        public int Weight { get; set; }
+        internal PieChartItem(in int weight, string text)
+        {
+            Weight = weight;
+            Text = text;
+        }
         
-        public string Legend { get; set; }
-        
-        public string Text { get; set; }
+        public readonly int Weight;
+
+        public readonly string Text;
     }
 }
