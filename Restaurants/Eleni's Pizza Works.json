@@ -8,6 +8,7 @@
     "TableName": "Ответы на форму (1)",
     "ColumnOfName": 3
   },
+  
   "StatsBot": {
     "Schedulers": [
       {
@@ -20,15 +21,10 @@
         "SendAt": "07:00:00",
         "StartFromDayOfWeek": 1,
         "TakeDays": 7
-      },
-      {
-        "Id": "4Weeks",
-        "SendAt": "07:00:00",
-        "StartFromDayOfWeek": 1,
-        "TakeDays": 28
       }
     ]
   },
+  
   "DistributionBot": {
     "SpreadsheetId": "1GjJtk_K64jXamzA3wVISEYUiSdsinzhVthWEg7FKx9k",
     "RunAt": "20:00:00"
@@ -37,5 +33,13 @@
   "Culture": {
     "Name": "en-US",
     "TimeZone": "America/New_York"
+  },
+  
+  "Urls": {
+    "tripadvisor": "https://www.tripadvisor.com/Restaurant_Review-g34618-d4254925-Reviews-Eleni_s_Pizza_Works-Sarasota_Florida.html",
+    "google": "https://goo.gl/maps/CooFMVXpkVkW1em1A",
+    "foursquare": "https://ru.foursquare.com/v/elenis-pizzaworks/4b9e8bdef964a520c3ed36e3",
+    "facebook": "https://www.facebook.com/elenispizzaworks/reviews/",
+    "yelp": "https://www.yelp.com/biz/elenis-pizza-works-sarasota"
   }
 }
