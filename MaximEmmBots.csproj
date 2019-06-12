@@ -8,7 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Gmail.v1" Version="1.40.2.1613" />
-      <PackageReference Include="Google.Apis.Sheets.v4" Version="1.40.1.1610" />
+      <PackageReference Include="Google.Apis.Sheets.v4" Version="1.40.2.1614" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-preview5.19227.9" />
       <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="3.0.0-preview5.19227.9" />
       <PackageReference Include="MongoDB.Bson" Version="2.8.1" />
