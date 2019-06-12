@@ -23,7 +23,7 @@ namespace MaximEmmBots
             await foreach (var (name, model) in languageModels)
                 languageDictionary[name] = model;
 
-            var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.GoogleCredentials);
+            var googleCredential = await GoogleExtensions.AuthorizeAsync(data.GoogleCredentials);
             var googleInitializer = new BaseClientService.Initializer
             {
                 ApplicationName = "Telegram Bot",
