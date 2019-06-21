@@ -30,6 +30,11 @@
     "RunAt": "20:00:00"
   },
   
+  "MailBot": {
+    "SpreadsheetId": "1v0D2ECmxUN9-8CnmS-WWIM41hacc2qlPsoXaZBR1bzE",
+    "TableName": "Лист1"
+  },
+  
   "Culture": {
     "Name": "en-US",
     "TimeZone": "America/New_York"
