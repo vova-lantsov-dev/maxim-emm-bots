@@ -19,6 +19,7 @@ using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
 using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
+using MailBotWorkerService = MaximEmmBots.Services.MailBot.WorkerService;
 
 namespace MaximEmmBots.Extensions
 {
@@ -85,6 +86,13 @@ namespace MaximEmmBots.Extensions
                 })
                 .AddTransientHttpErrorPolicy(policyBuilder =>
                     policyBuilder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(10d)));
+        }
+
+        internal static void AddMailBot(this IServiceCollection services)
+        {
+            services.AddSingleton<IMailClient, GmailClient>();
+
+            services.AddHostedService<MailBotWorkerService>();
         }
     }
 }

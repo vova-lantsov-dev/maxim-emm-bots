@@ -40,10 +40,11 @@ namespace MaximEmmBots
                     serviceCollection.AddDistributionBot();
                     serviceCollection.AddGuestsBot();
                     serviceCollection.AddReviewBot();
+                    serviceCollection.AddStatsBot();
+                    serviceCollection.AddMailBot();
                     
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddLocalizationServices(languageDictionary);
-                    serviceCollection.AddStatsBot();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
