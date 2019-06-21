@@ -16,6 +16,7 @@ namespace MaximEmmBots.Services
         internal readonly IMongoCollection<SentForm> SentForms;
         internal readonly IMongoCollection<SentStat> SentStats;
         internal readonly IMongoCollection<UserRestaurantPair> UserRestaurantPairs;
+        internal readonly IMongoCollection<SentChecklist> SentChecklists;
         
         public Context(IOptions<DataOptions> options, ILogger<Context> logger)
         {
@@ -30,6 +31,7 @@ namespace MaximEmmBots.Services
             SentForms = db.GetCollection<SentForm>(nameof(SentForms));
             SentStats = db.GetCollection<SentStat>(nameof(SentStats));
             UserRestaurantPairs = db.GetCollection<UserRestaurantPair>(nameof(UserRestaurantPairs));
+            SentChecklists = db.GetCollection<SentChecklist>(nameof(SentChecklists));
             
             logger.LogTrace("Context initialization finished");
         }
