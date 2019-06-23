@@ -6,6 +6,7 @@ namespace MaximEmmBots.Services.MailBot
 {
     internal interface IMailClient
     {
-        IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant, CancellationToken cancellationToken);
+        IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant, string checklistName,
+            string notifyMessage, CancellationToken cancellationToken);
     }
 }

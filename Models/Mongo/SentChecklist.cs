@@ -8,6 +8,8 @@ namespace MaximEmmBots.Models.Mongo
     {
         public ObjectId Id { get; set; }
         
+        public string AttachmentId { get; set; }
+        
         public string ChecklistName { get; set; }
         
         [BsonDateTimeOptions(Kind = DateTimeKind.Unspecified, DateOnly = true)]
