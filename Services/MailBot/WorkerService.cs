@@ -46,7 +46,7 @@ namespace MaximEmmBots.Services.MailBot
                 return;
 
             await foreach (var sentChecklist in YieldChecklistWatchdogEntryAsync(valueRange.Values,
-                cancellationToken).WithCancellation(cancellationToken))
+                cancellationToken))
             {
                 sentChecklist.Id = new ObjectId();
                 await _context.SentChecklists.InsertOneAsync(sentChecklist, null, cancellationToken);
@@ -157,7 +157,6 @@ namespace MaximEmmBots.Services.MailBot
                 var now = _cultureService.NowFor(restaurant);
                 todayIsDayOfWeek = now.DayOfWeek;
                 todayIsDayOfMonth = now.Day;
-                return TimeSpan.Zero;
                 return now.TimeOfDay < entry.SendAt
                     ? now.TimeOfDay - entry.SendAt
                     : entry.SendAt + TimeSpan.FromDays(1d) - now.TimeOfDay;
@@ -190,19 +189,41 @@ namespace MaximEmmBots.Services.MailBot
 
                 try
                 {
-                    await foreach (var thread in _mailClient.ExecuteForRestaurantAsync(restaurant, cancellationToken))
+                    var totalAttachmentsFound = 0;
+                    await foreach (var attachmentId in _mailClient.ExecuteForRestaurantAsync(restaurant, entry.ChecklistName,
+                        entry.ChecklistMessage, cancellationToken))
                     {
-                        
+                        var sentChecklist = new SentChecklist
+                        {
+                            Date = _cultureService.NowFor(restaurant).Date,
+                            AttachmentId = attachmentId,
+                            ChecklistName = entry.ChecklistName
+                        };
+                        sentChecklists.TryAdd(sentChecklist, -1, cancellationToken);
+                        totalAttachmentsFound++;
+                    }
+
+                    if (totalAttachmentsFound == 0)
+                    {
+                        if (entry.NotifyNotFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyNotFoundMessage))
+                            await _client.SendTextMessageAsync(entry.NotifyNotFoundChatId, entry.NotifyNotFoundMessage,
+                                disableWebPagePreview: true, cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        if (entry.NotifyFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyFoundMessage))
+                            await _client.SendTextMessageAsync(entry.NotifyFoundChatId, entry.NotifyFoundMessage,
+                                disableWebPagePreview: true, cancellationToken: cancellationToken);
                     }
                 }
                 catch (Exception e)
                 {
-                    //
+                    Console.WriteLine(e);
                 }
             }
         }
         
-        private class ChecklistWatchdogEntry
+        private sealed class ChecklistWatchdogEntry
         {
             public ChecklistWatchdogEntryType Type;
             public string ChecklistName;

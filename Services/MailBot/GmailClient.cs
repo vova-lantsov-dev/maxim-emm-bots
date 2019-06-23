@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using MaximEmmBots.Extensions;
 using MaximEmmBots.Models.Json.Restaurants;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
 // ReSharper disable LoopCanBeConvertedToQuery
@@ -34,62 +36,113 @@ namespace MaximEmmBots.Services.MailBot
         }
 
         public async IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant,
-            CancellationToken cancellationToken)
+            string checklistName, string nofityMessage, CancellationToken cancellationToken)
         {
             const string userId = "me";
 
             var result = await _gmailService.Users.Threads.List(userId).ExecuteAsync(cancellationToken);
 
-            foreach (var gmailThread in result.Threads.Reverse())
+            foreach (var gmailThread in result.Threads.Where(t => t.Snippet.Contains(checklistName)).Reverse())
             {
                 var threadInfo = await _gmailService.Users.Threads.Get(userId, gmailThread.Id)
                     .ExecuteAsync(cancellationToken);
 
                 foreach (var gmailThreadMessage in threadInfo.Messages)
                 {
+                    if (!gmailThreadMessage.Payload.Headers.Any(h =>
+                        h.Name == "Subject" && h.Value.Contains(checklistName, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                    
                     var messageInfo = await _gmailService.Users.Messages.Get(userId, gmailThreadMessage.Id)
                         .ExecuteAsync(cancellationToken);
+                                                                    
 
-                    MessagePart GetAttachmentPart(MessagePart part)
+                    IEnumerable<MessagePart> GetAttachmentParts(MessagePart part)
                     {
                         if (part.Parts == null)
-                            return null;
+                            yield break;
 
                         foreach (var innerPart in part.Parts)
                         {
-                            if (!string.IsNullOrEmpty(innerPart.MimeType))
+                            if (innerPart.Body.AttachmentId == null)
                                 continue;
 
-                            return innerPart;
+                            yield return innerPart;
                         }
 
                         foreach (var innerPart in part.Parts)
                         {
-                            var found = GetAttachmentPart(innerPart);
+                            var found = GetAttachmentParts(innerPart);
                             if (found != null)
-                                return found;
+                                foreach (var foundItem in found)
+                                    yield return foundItem;
                         }
-
-                        return null;
                     }
 
-                    var attachmentPart = GetAttachmentPart(messageInfo.Payload);
-                    if (attachmentPart == null ||
-                        !attachmentPart.Filename.Contains(restaurant.Name, StringComparison.OrdinalIgnoreCase))
+                    var attachmentParts = GetAttachmentParts(messageInfo.Payload);
+                    if (attachmentParts == null)
                         continue;
 
-                    var pdfAttachment = await _gmailService.Users.Messages.Attachments.Get(userId, messageInfo.Id,
-                        attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken);
-                    var pdfAttachmentBytes = Convert.FromBase64String(pdfAttachment.Data.ToBase64Url());
-                    await using var pdfAttachmentStream = new MemoryStream(pdfAttachmentBytes);
+                    var photos = new List<(MemoryStream content, string filename)>();
+                    var date = messageInfo.Payload.Headers.FirstOrDefault(h => h.Name == "X-Google-Original-Date");
+                    var message = $"*{nofityMessage}\n{date?.Value}*";
+                    
+                    foreach (var attachmentPart in attachmentParts)
+                    {
+                        var attachment = await _gmailService.Users.Messages.Attachments.Get(userId, messageInfo.Id,
+                            attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken);
+                        var attachmentBytes = Convert.FromBase64String(attachment.Data.ToBase64Url());
+                        var attachmentStream = new MemoryStream(attachmentBytes);
+                        
+                        if (!attachmentPart.MimeType.StartsWith("image"))
+                        {
+                            try
+                            {
+                                await _botClient.SendDocumentAsync(restaurant.ChatId,
+                                    new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
+                                    message, ParseMode.Markdown, cancellationToken: cancellationToken);
+                            }
+                            finally
+                            {
+                                await attachmentStream.DisposeAsync();
+                            }
+                        }
+                        else
+                        {
+                            photos.Add((attachmentStream, attachmentPart.Filename));
+                        }
 
-                    await _botClient.SendDocumentAsync(restaurant.ChatId,
-                        new InputOnlineFile(pdfAttachmentStream, attachmentPart.Filename.ToFileName()),
-                        DateTime.UnixEpoch.AddMilliseconds(messageInfo.InternalDate ?? 0L)
-                            .ToString("f", _cultureService.CultureFor(restaurant)),
-                        cancellationToken: cancellationToken);
+                        yield return attachmentPart.Body.AttachmentId;
+                    }
 
-                    yield return null;
+                    if (photos.Count == 1)
+                    {
+                        var (content, filename) = photos[0];
+                        try
+                        {
+                            await _botClient.SendPhotoAsync(restaurant.ChatId, new InputOnlineFile(content, filename),
+                                message, ParseMode.Markdown, cancellationToken: cancellationToken);
+                        }
+                        finally
+                        {
+                            await content.DisposeAsync();
+                        }
+                    }
+                    else if (photos.Count != 0)
+                    {
+                        try
+                        {
+                            await _botClient.SendMediaGroupAsync(photos
+                                    .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
+                                        new InputMediaPhoto(new InputMedia(item.content, item.filename))
+                                            {Caption = item.filename}),
+                                restaurant.ChatId, cancellationToken: cancellationToken);
+                        }
+                        finally
+                        {
+                            await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask()));
+                        }
+                    }
                 }
             }
         }
