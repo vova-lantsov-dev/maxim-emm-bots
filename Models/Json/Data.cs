@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MaximEmmBots.Models.Json.MailBot;
 using MaximEmmBots.Models.Json.Restaurants;
 using MaximEmmBots.Models.Json.ReviewBot;
 
@@ -15,5 +16,7 @@ namespace MaximEmmBots.Models.Json
         public GoogleCredentials GoogleCredentials { get; set; }
         
         public ReviewBotData ReviewBot { get; set; }
+        
+        public MailBotData MailBot { get; set; }
     }
 }

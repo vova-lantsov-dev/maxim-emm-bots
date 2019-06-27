@@ -9,10 +9,15 @@
   "ViewFeedback": "View feedback",
   "OpenReview": "Open review",
   "Comments": "<b>Comments:</b>",
+
+  "RestaurantAndSourceForReview": "<b>Restaurant:</b> <b>{0}</b>\n<i>Source:</i> <b>{1}</b>",
+  "TypeForReview": "<i>Review type:</i> <b>{0}</b>",
+  "RatingForReview": "<i>Rating:</i> ",
+  "TextForReview": "<i>Text:</i> {0}",
   
   "ResponseToReviewSent": "Response to review successfully sent!",
-  "NewMemberInGroup": "У нас появился новый сотрудник, поприветствуем!\n<a href=\"tg://user?id={1}\">{0}</a>, у нас работает Искусственный Разум, который будет напоминать ежедневно, кто, где и со скольки работает!\n{0}, для получения персональных сообщений ткни на {2} и нажми Старт/Начать.",
-  "NewMemberForAdmin": "<b>НОВЫЙ СОТРУДНИК</b>\n<a href=\"tg://user?id={0}\">Профиль</a>\nПолное имя: {1} {2}\nId: {0}",
+  "NewMemberInGroup": "We've got a new employee!\n<a href=\"tg://user?id={1}\">{0}</a>, Artificial Intelligence is working here, and it will notify every day, who, where and from what time works!\n{0}, click on {2} and press the Start button to get personal notifications.",
+  "NewMemberForAdmin": "<b>NEW EMPLOYEE</b>\n<a href=\"tg://user?id={0}\">Profile</a>\nFull name: {1} {2}\nId: {0}",
   
   "StatsForPeriod": "<b>Schedule for filling out forms for {0}-{1}</b>"
 }

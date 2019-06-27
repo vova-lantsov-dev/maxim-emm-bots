@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.Services;
 using MaximEmmBots.Extensions;
@@ -14,19 +12,18 @@ namespace MaximEmmBots
     {
         private static async Task Main(string[] args)
         {
-            var settingsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "settings.json");
-            var data = await SettingsExtensions.LoadDataAsync(settingsFilePath);
+            var data = await SettingsExtensions.LoadDataAsync();
+            
             data.Restaurants = new List<Restaurant>();
             await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync())
                 data.Restaurants.Add(restaurant);
 
-            var languageModels = SettingsExtensions.YieldLanguagesAsync(Directory.GetCurrentDirectory(),
-                data.Restaurants.Select(r => r.Culture.Name).Distinct());
+            var languageModels = SettingsExtensions.YieldLanguagesAsync();
             var languageDictionary = new Dictionary<string, LocalizationModel>();
             await foreach (var (name, model) in languageModels)
                 languageDictionary[name] = model;
 
-            var googleCredential = await GoogleSheetsExtensions.AuthorizeAsync(data.GoogleCredentials);
+            var googleCredential = await GoogleExtensions.AuthorizeAsync(data.GoogleCredentials);
             var googleInitializer = new BaseClientService.Initializer
             {
                 ApplicationName = "Telegram Bot",
@@ -43,10 +40,11 @@ namespace MaximEmmBots
                     serviceCollection.AddDistributionBot();
                     serviceCollection.AddGuestsBot();
                     serviceCollection.AddReviewBot();
+                    serviceCollection.AddStatsBot();
+                    serviceCollection.AddMailBot();
                     
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddLocalizationServices(languageDictionary);
-                    serviceCollection.AddStatsBot();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync();
