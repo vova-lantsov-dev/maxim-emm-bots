@@ -9,15 +9,18 @@ namespace MaximEmmBots.Extensions
 {
     internal static class SettingsExtensions
     {
-        internal static async Task<Data> LoadDataAsync(string settingsFilePath)
+        private static readonly string BasePath = Directory.GetCurrentDirectory();
+        
+        internal static async Task<Data> LoadDataAsync()
         {
+            var settingsFilePath = Path.Combine(BasePath, "settings.json");
             await using var settingsFile = File.OpenRead(settingsFilePath);
             return await JsonSerializer.ReadAsync<Data>(settingsFile);
         }
 
         internal static async IAsyncEnumerable<Restaurant> YieldRestaurantsAsync()
         {
-            var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "Restaurants");
+            var dirPath = Path.Combine(BasePath, "Restaurants");
             foreach (var filePath in Directory.GetFiles(dirPath, "*.json", SearchOption.AllDirectories))
             {
                 await using var fileWithRestaurant = File.OpenRead(filePath);
@@ -27,12 +30,15 @@ namespace MaximEmmBots.Extensions
             }
         }
 
-        internal static async IAsyncEnumerable<(string name, LocalizationModel model)> YieldLanguagesAsync(string basePath, IEnumerable<string> languageKeys)
+        internal static async IAsyncEnumerable<(string name, LocalizationModel model)> YieldLanguagesAsync()
         {
-            foreach (var languageKey in languageKeys)
+            var dirPath = Path.Combine(BasePath, "Languages");
+            foreach (var languageFilePath in Directory.GetFiles(dirPath, "*.json", SearchOption.AllDirectories))
             {
-                await using var languageFile = File.OpenRead(Path.Combine(basePath, languageKey + ".json"));
-                yield return (languageKey, await JsonSerializer.ReadAsync<LocalizationModel>(languageFile));
+                await using var languageFile = File.OpenRead(languageFilePath);
+                var languageName = Path.GetFileNameWithoutExtension(languageFilePath);
+                var languageModel = await JsonSerializer.ReadAsync<LocalizationModel>(languageFile);
+                yield return (languageName, languageModel);
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Google.Apis.Gmail.v1;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using MaximEmmBots.Models.Json;
@@ -7,6 +8,7 @@ using MaximEmmBots.Options;
 using MaximEmmBots.Services;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
+using MaximEmmBots.Services.MailBot;
 using MaximEmmBots.Services.StatsBot;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
@@ -17,6 +19,7 @@ using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
 using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
+using MailBotWorkerService = MaximEmmBots.Services.MailBot.WorkerService;
 
 namespace MaximEmmBots.Extensions
 {
@@ -34,6 +37,7 @@ namespace MaximEmmBots.Extensions
             BaseClientService.Initializer googleInitializer)
         {
             services.AddSingleton(new SheetsService(googleInitializer));
+            services.AddSingleton(new GmailService(googleInitializer));
             services.AddSingleton<GoogleSheetsService>();
         }
 
@@ -82,6 +86,13 @@ namespace MaximEmmBots.Extensions
                 })
                 .AddTransientHttpErrorPolicy(policyBuilder =>
                     policyBuilder.WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(10d)));
+        }
+
+        internal static void AddMailBot(this IServiceCollection services)
+        {
+            services.AddSingleton<IMailClient, GmailClient>();
+
+            services.AddHostedService<MailBotWorkerService>();
         }
     }
 }

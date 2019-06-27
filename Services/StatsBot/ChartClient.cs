@@ -39,7 +39,7 @@ namespace MaximEmmBots.Services.StatsBot
                 {
                     chd[itemsIndex] = item.Weight;
                     chli += item.Weight;
-                    chdl[itemsIndex] = item.Legend;
+                    chdl[itemsIndex] = item.Weight.ToString();
                     chl[itemsIndex++] = item.Text;
                 }
             }
