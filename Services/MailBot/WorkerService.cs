@@ -149,7 +149,7 @@ namespace MaximEmmBots.Services.MailBot
             if (restaurant == null)
                 return;
 
-            var sendAtDaysOfWeek = entry.PublishDaysOfWeek.Where(dow => dow > 0 && dow < 8)
+            var sendAtDaysOfWeek = entry.PublishDaysOfWeek?.Where(dow => dow > 0 && dow < 8)
                 .Select(dow => dow == 7 ? DayOfWeek.Sunday : (DayOfWeek) dow);
 
             TimeSpan GetDelay(out DayOfWeek todayIsDayOfWeek, out int todayIsDayOfMonth)
@@ -158,7 +158,7 @@ namespace MaximEmmBots.Services.MailBot
                 todayIsDayOfWeek = now.DayOfWeek;
                 todayIsDayOfMonth = now.Day;
                 return now.TimeOfDay < entry.SendAt
-                    ? now.TimeOfDay - entry.SendAt
+                    ? entry.SendAt - now.TimeOfDay
                     : entry.SendAt + TimeSpan.FromDays(1d) - now.TimeOfDay;
             }
             
@@ -190,13 +190,13 @@ namespace MaximEmmBots.Services.MailBot
                 try
                 {
                     var totalAttachmentsFound = 0;
-                    await foreach (var attachmentId in _mailClient.ExecuteForRestaurantAsync(restaurant, entry.ChecklistName,
+                    await foreach (var messageId in _mailClient.ExecuteForRestaurantAsync(restaurant, entry.ChecklistName,
                         entry.ChecklistMessage, cancellationToken))
                     {
                         var sentChecklist = new SentChecklist
                         {
                             Date = _cultureService.NowFor(restaurant).Date,
-                            AttachmentId = attachmentId,
+                            MessageId = messageId,
                             ChecklistName = entry.ChecklistName
                         };
                         sentChecklists.TryAdd(sentChecklist, -1, cancellationToken);
