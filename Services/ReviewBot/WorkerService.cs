@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
@@ -108,50 +109,64 @@ namespace MaximEmmBots.Services.ReviewBot
                 return;
             }
             
-            var notSentReviews = await _context.Reviews.Find(r => r.NeedToShow).ToListAsync(cancellationToken);
-            foreach (var notSentReview in notSentReviews)
+            var notSentReviews = await _context.Reviews
+                .Find(r => r.NeedToShow)
+                .SortByDescending(r => r.Id)
+                .ToListAsync(cancellationToken);
+            
+            if (notSentReviews.Count == 0)
+                return;
+            
+            foreach (var notSentReviewGroup in notSentReviews.GroupBy(r => r.Resource))
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                foreach (var notSentReview in notSentReviewGroup.Take(5))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                var restaurant = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName);
-                if (restaurant == default)
-                    continue;
+                    var restaurant = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName);
+                    if (restaurant == default)
+                        continue;
 
-                var model = _cultureService.ModelFor(restaurant);
-                
-                var buttons = new List<List<InlineKeyboardButton>>();
-                if ((notSentReview.Comments?.Count ?? 0) > 0)
-                    buttons.Add(new List<InlineKeyboardButton>
-                    {
-                        new InlineKeyboardButton
+                    var model = _cultureService.ModelFor(restaurant);
+
+                    var buttons = new List<List<InlineKeyboardButton>>();
+                    if ((notSentReview.Comments?.Count ?? 0) > 0)
+                        buttons.Add(new List<InlineKeyboardButton>
                         {
-                            Text = model.ViewFeedback,
-                            CallbackData = $"comments~{notSentReview.Id}"
-                        }
-                    });
-                if (!notSentReview.IsReadOnly && notSentReview.ReplyLink != null &&
-                    notSentReview.Resource != "google")
-                    buttons.Add(new List<InlineKeyboardButton>
-                    {
-                        new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
-                    });
-                
-                var chatId = restaurant.ChatId;
-                var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
-                        _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource, out var maxValueOfRating)
-                            ? maxValueOfRating
-                            : -1,
-                        _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                    ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
-                        ? new InlineKeyboardMarkup(buttons)
-                        : null);
+                            new InlineKeyboardButton
+                            {
+                                Text = model.ViewFeedback,
+                                CallbackData = $"comments~{notSentReview.Id}"
+                            }
+                        });
+                    if (!notSentReview.IsReadOnly && notSentReview.ReplyLink != null &&
+                        notSentReview.Resource != "google")
+                        buttons.Add(new List<InlineKeyboardButton>
+                        {
+                            new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
+                        });
 
-                if (notSentReview.Resource == "google")
-                    await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
-                        Builders<GoogleReviewMessage>.Update.Set(grm => grm.MessageId, sentMessage.MessageId),
-                        new UpdateOptions {IsUpsert = true}, cancellationToken);
+                    var chatId = restaurant.ChatId;
+                    var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
+                            _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
+                                out var maxValueOfRating)
+                                ? maxValueOfRating
+                                : -1,
+                            _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
+                        ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                            ? new InlineKeyboardMarkup(buttons)
+                            : null);
 
-                await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
+                    if (notSentReview.Resource == "google")
+                        await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
+                            Builders<GoogleReviewMessage>.Update.Set(grm => grm.MessageId, sentMessage.MessageId),
+                            new UpdateOptions {IsUpsert = true}, cancellationToken);
+
+                    await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
+                        Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                }
+
+                await _context.Reviews.UpdateManyAsync(r => r.Resource == notSentReviewGroup.Key && r.NeedToShow,
                     Builders<Review>.Update.Set(r => r.NeedToShow, false));
             }
         }
