@@ -8,6 +8,7 @@ using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using MaximEmmBots.Extensions;
 using MaximEmmBots.Models.Json.Restaurants;
+using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -21,18 +22,15 @@ namespace MaximEmmBots.Services.MailBot
     {
         private readonly GmailService _gmailService;
         private readonly ITelegramBotClient _botClient;
-        private readonly CultureService _cultureService;
-        private readonly ILogger<GmailClient> _logger;
+        private readonly Context _context;
         
         public GmailClient(GmailService gmailService,
             ITelegramBotClient botClient,
-            CultureService cultureService,
-            ILogger<GmailClient> logger)
+            Context context)
         {
             _gmailService = gmailService;
             _botClient = botClient;
-            _cultureService = cultureService;
-            _logger = logger;
+            _context = context;
         }
 
         public async IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant,
@@ -51,6 +49,10 @@ namespace MaximEmmBots.Services.MailBot
                 {
                     if (!gmailThreadMessage.Payload.Headers.Any(h =>
                         h.Name == "Subject" && h.Value.Contains(checklistName, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                    
+                    if (await _context.SentChecklists.Find(sc => sc.MessageId == gmailThreadMessage.Id)
+                        .AnyAsync(cancellationToken))
                         continue;
                     
                     var messageInfo = await _gmailService.Users.Messages.Get(userId, gmailThreadMessage.Id)
