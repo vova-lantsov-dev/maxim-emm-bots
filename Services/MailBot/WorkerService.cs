@@ -48,7 +48,7 @@ namespace MaximEmmBots.Services.MailBot
             await foreach (var sentChecklist in YieldChecklistWatchdogEntryAsync(valueRange.Values,
                 cancellationToken))
             {
-                sentChecklist.Id = new ObjectId();
+                sentChecklist.Id = ObjectId.GenerateNewId();
                 await _context.SentChecklists.InsertOneAsync(sentChecklist, null, cancellationToken);
             }
         }
