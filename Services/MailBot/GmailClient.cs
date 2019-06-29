@@ -113,8 +113,6 @@ namespace MaximEmmBots.Services.MailBot
                         {
                             photos.Add((attachmentStream, attachmentPart.Filename));
                         }
-
-                        yield return attachmentPart.Body.AttachmentId;
                     }
 
                     if (photos.Count == 1)
@@ -145,6 +143,8 @@ namespace MaximEmmBots.Services.MailBot
                             await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask()));
                         }
                     }
+
+                    yield return messageInfo.Id;
                 }
             }
         }
