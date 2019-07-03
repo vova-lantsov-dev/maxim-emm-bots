@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MaximEmmBots.Models.Json.Restaurants;
+using MaximEmmBots.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace MaximEmmBots.Services.Scheduling
 {
@@ -18,23 +21,25 @@ namespace MaximEmmBots.Services.Scheduling
         public SchedulingService(IHostApplicationLifetime lifetime,
             CultureService cultureService,
             IEnumerable<IScheduler> schedulers,
-            ILogger<SchedulingService> logger)
+            ILogger<SchedulingService> logger,
+            IOptions<DataOptions> dataOptions)
         {
             _cultureService = cultureService;
             _logger = logger;
             _stoppingToken = lifetime.ApplicationStopping;
             
-            _runningTasks.AddRange(schedulers.Select(RunSchedulerAsync));
+            _runningTasks.AddRange(dataOptions.Value.Data.Restaurants
+                .SelectMany(r => schedulers.Select(s => RunSchedulerAsync(s, r))));
         }
 
-        private async Task RunSchedulerAsync(IScheduler scheduler)
+        private async Task RunSchedulerAsync(IScheduler scheduler, Restaurant restaurant)
         {
             var getSchedulingDelay = scheduler.SchedulingMode switch
             {
-                SchedulingMode.Daily => (Func<IScheduler, TimeSpan>) GetDailyDelay,
-                SchedulingMode.Weekly => (Func<IScheduler, TimeSpan>) GetWeeklyDelay,
-                SchedulingMode.Monthly => (Func<IScheduler, TimeSpan>) GetMonthlyDelay,
-                SchedulingMode.Static => (Func<IScheduler, TimeSpan>) (s => s.SchedulingTime),
+                SchedulingMode.Daily => (Func<IScheduler, Restaurant, TimeSpan>) GetDailyDelay,
+                SchedulingMode.Weekly => (Func<IScheduler, Restaurant, TimeSpan>) GetWeeklyDelay,
+                SchedulingMode.Monthly => (Func<IScheduler, Restaurant, TimeSpan>) GetMonthlyDelay,
+                SchedulingMode.Static => (Func<IScheduler, Restaurant, TimeSpan>)((s, _) => s.SchedulingTime(restaurant)),
                 _ => throw new ArgumentOutOfRangeException(nameof(scheduler.SchedulingMode))
             };
 
@@ -42,7 +47,7 @@ namespace MaximEmmBots.Services.Scheduling
             {
                 try
                 {
-                    await Task.Delay(getSchedulingDelay(scheduler), _stoppingToken);
+                    await Task.Delay(getSchedulingDelay(scheduler, restaurant), _stoppingToken);
                 }
                 catch (TaskCanceledException)
                 {
@@ -60,7 +65,7 @@ namespace MaximEmmBots.Services.Scheduling
 
                 try
                 {
-                    await scheduler.OnElapseAsync(_stoppingToken);
+                    await scheduler.OnElapseAsync(restaurant, _stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -69,22 +74,22 @@ namespace MaximEmmBots.Services.Scheduling
             }
         }
 
-        private TimeSpan GetDailyDelay(IScheduler scheduler)
+        private TimeSpan GetDailyDelay(IScheduler scheduler, Restaurant restaurant)
         {
-            var now = _cultureService.NowFor(scheduler.Restaurant);
-            return now.TimeOfDay <= scheduler.SchedulingTime
-                ? scheduler.SchedulingTime - now.TimeOfDay
-                : TimeSpan.FromDays(1d) + scheduler.SchedulingTime - now.TimeOfDay;
+            var now = _cultureService.NowFor(restaurant);
+            return now.TimeOfDay <= scheduler.SchedulingTime(restaurant)
+                ? scheduler.SchedulingTime(restaurant) - now.TimeOfDay
+                : TimeSpan.FromDays(1d) + scheduler.SchedulingTime(restaurant) - now.TimeOfDay;
         }
 
-        private TimeSpan GetWeeklyDelay(IScheduler scheduler)
+        private TimeSpan GetWeeklyDelay(IScheduler scheduler, Restaurant restaurant)
         {
             if (!(scheduler is IWeeklyScheduler weeklyScheduler))
                 throw new ArgumentException("Weekly scheduler is not of type IWeeklyScheduler", nameof(scheduler));
 
-            var now = _cultureService.NowFor(scheduler.Restaurant);
+            var now = _cultureService.NowFor(restaurant);
             var nowDayOfWeek = now.DayOfWeek == DayOfWeek.Sunday ? 7 : (int) now.DayOfWeek;
-            if (scheduler.SchedulingTime > now.TimeOfDay)
+            if (scheduler.SchedulingTime(restaurant) > now.TimeOfDay)
                 nowDayOfWeek++;
 
             var daysDelay = 7;
@@ -102,22 +107,22 @@ namespace MaximEmmBots.Services.Scheduling
                     break;
             }
 
-            return (now.TimeOfDay <= scheduler.SchedulingTime
-                       ? scheduler.SchedulingTime - now.TimeOfDay
-                       : TimeSpan.FromDays(1d) + scheduler.SchedulingTime - now.TimeOfDay) +
+            return (now.TimeOfDay <= scheduler.SchedulingTime(restaurant)
+                       ? scheduler.SchedulingTime(restaurant) - now.TimeOfDay
+                       : TimeSpan.FromDays(1d) + scheduler.SchedulingTime(restaurant) - now.TimeOfDay) +
                    TimeSpan.FromDays(daysDelay);
         }
 
-        private TimeSpan GetMonthlyDelay(IScheduler scheduler)
+        private TimeSpan GetMonthlyDelay(IScheduler scheduler, Restaurant restaurant)
         {
             if (!(scheduler is IMonthlyScheduler monthlyScheduler))
                 throw new ArgumentException("Monthly scheduler is not of type IMonthlyScheduler", nameof(scheduler));
 
-            var now = _cultureService.NowFor(scheduler.Restaurant);
+            var now = _cultureService.NowFor(restaurant);
             var next = now.AddMonths(1);
             var nowDayOfMonth = now.Day;
             var nextDaysOfMonth = DateTime.DaysInMonth(next.Year, next.Month);
-            if (scheduler.SchedulingTime > now.TimeOfDay)
+            if (scheduler.SchedulingTime(restaurant) > now.TimeOfDay)
                 nowDayOfMonth++;
 
             var daysDelay = 32;
@@ -135,9 +140,9 @@ namespace MaximEmmBots.Services.Scheduling
                     break;
             }
 
-            return (now.TimeOfDay <= scheduler.SchedulingTime
-                       ? scheduler.SchedulingTime - now.TimeOfDay
-                       : TimeSpan.FromDays(1d) + scheduler.SchedulingTime - now.TimeOfDay) +
+            return (now.TimeOfDay <= scheduler.SchedulingTime(restaurant)
+                       ? scheduler.SchedulingTime(restaurant) - now.TimeOfDay
+                       : TimeSpan.FromDays(1d) + scheduler.SchedulingTime(restaurant) - now.TimeOfDay) +
                    TimeSpan.FromDays(daysDelay);
         }
 

@@ -9,12 +9,10 @@ namespace MaximEmmBots.Services.Scheduling
     {
         string SchedulerName { get; }
         
-        Restaurant Restaurant { get; set; }
-        
         SchedulingMode SchedulingMode { get; }
         
-        TimeSpan SchedulingTime { get; }
+        Func<Restaurant, TimeSpan> SchedulingTime { get; }
 
-        Task OnElapseAsync(CancellationToken cancellationToken);
+        Task OnElapseAsync(Restaurant restaurant, CancellationToken cancellationToken);
     }
 }
