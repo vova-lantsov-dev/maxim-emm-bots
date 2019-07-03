@@ -4,6 +4,7 @@ namespace MaximEmmBots.Services.Scheduling
     {
         Daily,
         Weekly,
-        Monthly
+        Monthly,
+        Static
     }
 }
