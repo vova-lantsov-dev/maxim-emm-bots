@@ -1,7 +1,7 @@
 {
-  "ChatId": -1001463899405,
+  "ChatId": -395625310,
   "AdminIds": [ 336510341 ],
-  "PlaceInfo": "Eleni's Pizza Works",
+  "PlaceInfo": "at Eleni's Pizza Works",
   
   "GuestsBot": {
     "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
@@ -26,8 +26,8 @@
   },
   
   "DistributionBot": {
-    "SpreadsheetId": "1GjJtk_K64jXamzA3wVISEYUiSdsinzhVthWEg7FKx9k",
-    "RunAt": "20:00:00"
+    "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
+    "RunAt": "19:00:00"
   },
   
   "MailBot": {

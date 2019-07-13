@@ -30,6 +30,12 @@
       <None Update="Languages\ru-RU.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Restaurants\Eleni's Pizza Works.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="credentials\Google.Apis.Auth.OAuth2.Responses.TokenResponse-user">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
