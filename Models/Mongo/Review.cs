@@ -102,9 +102,11 @@ namespace MaximEmmBots.Models.Mongo
             if (!string.IsNullOrWhiteSpace(Text))
             {
                 result.Append('\n');
-                result.AppendFormat(model.TextForReview, Regex.Replace(Text,
+                result.Append(Text);
+                // TODO removing regex for html formatting options
+                /*result.AppendFormat(model.TextForReview, Regex.Replace(Text,
                     "(?<token>[*_\\\\`\\\\[\\]])",
-                    m => $"\\{m.Groups["token"].Value}"));
+                    m => $"\\{m.Groups["token"].Value}"));*/
             }
 
             return result.ToString();

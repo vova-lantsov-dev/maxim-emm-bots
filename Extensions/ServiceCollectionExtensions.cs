@@ -9,6 +9,7 @@ using MaximEmmBots.Services;
 using MaximEmmBots.Services.DistributionBot;
 using MaximEmmBots.Services.GuestsBot;
 using MaximEmmBots.Services.MailBot;
+using MaximEmmBots.Services.Scheduling;
 using MaximEmmBots.Services.StatsBot;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
@@ -16,7 +17,6 @@ using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
-using DistributionBotWorkerService = MaximEmmBots.Services.DistributionBot.WorkerService;
 using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
 using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
 using MailBotWorkerService = MaximEmmBots.Services.MailBot.WorkerService;
@@ -31,6 +31,7 @@ namespace MaximEmmBots.Extensions
 
             services.AddSingleton<Context>();
             services.AddSingleton<CultureService>();
+            services.AddHostedService<SchedulingService>();
         }
 
         internal static void AddGoogleServices(this IServiceCollection services,
@@ -72,7 +73,7 @@ namespace MaximEmmBots.Extensions
         internal static void AddDistributionBot(this IServiceCollection services)
         {
             services.AddSingleton<DistributionBotSheetsService>();
-            services.AddHostedService<DistributionBotWorkerService>();
+            services.AddSingleton<IScheduler, DistributionBotScheduler>();
         }
 
         internal static void AddStatsBot(this IServiceCollection services)
