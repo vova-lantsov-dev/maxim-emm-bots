@@ -20,9 +20,6 @@ namespace MaximEmmBots.Services
         
         internal async Task<ValueRange> GetValueRangeAsync(string sId, string range, CancellationToken stoppingToken)
         {
-            _logger.LogDebug("SpreadsheetId is {0}", sId);
-            _logger.LogDebug("Range is {0}", range);
-            
             var request = _sheetsService.Spreadsheets.Values.Get(sId, range);
 
             try
@@ -31,7 +28,6 @@ namespace MaximEmmBots.Services
             }
             catch (Exception e)
             {
-                _logger.LogCritical(e, "Error occurred while executing spreadsheet request.");
                 return null;
             }
         }
