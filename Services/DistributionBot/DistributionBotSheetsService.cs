@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -134,8 +133,8 @@ namespace MaximEmmBots.Services.DistributionBot
 
                 try
                 {
-                    /*await _client.SendTextMessageAsync(privateUserId, privateTextBuilder.ToString(),
-                        ParseMode.Html, cancellationToken: stoppingToken);*/
+                    await _client.SendTextMessageAsync(privateUserId, privateTextBuilder.ToString(),
+                        ParseMode.Html, cancellationToken: stoppingToken);
                 }
                 catch (Exception e)
                 {

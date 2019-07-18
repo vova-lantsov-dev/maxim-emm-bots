@@ -14,13 +14,13 @@
     "Schedulers": [
       {
         "Id": "Daily",
-        "SendAt": "19:15:00",
+        "SendAt": "07:00:00",
         "TakeDays": 1
       },
       {
         "Id": "Weekly",
-        "SendAt": "19:15:00",
-        "StartFromDayOfWeek": 7,
+        "SendAt": "07:00:00",
+        "StartFromDayOfWeek": 1,
         "TakeDays": 7
       }
     ]
@@ -28,7 +28,7 @@
   
   "DistributionBot": {
     "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
-    "RunAt": "19:15:00"
+    "RunAt": "20:00:00"
   },
   
   "Culture": {

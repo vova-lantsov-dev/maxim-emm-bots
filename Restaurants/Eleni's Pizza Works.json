@@ -1,43 +1,32 @@
 {
   "ChatId": -395625310,
   "AdminIds": [ 336510341 ],
-  "PlaceInfo": "at Eleni's Pizza Works",
-  
-  "GuestsBot": {
-    "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
-    "TableName": "Ответы на форму (1)",
-    "ColumnOfName": 3
-  },
+  "PlaceInfo": "Eleni's Pizza Works",
   
   "StatsBot": {
     "Schedulers": [
       {
         "Id": "Daily",
-        "SendAt": "19:15:00",
+        "SendAt": "07:00:00",
         "TakeDays": 1
       },
       {
         "Id": "Weekly",
-        "SendAt": "19:15:00",
-        "StartFromDayOfWeek": 6,
+        "SendAt": "07:00:00",
+        "StartFromDayOfWeek": 1,
         "TakeDays": 7
       }
     ]
   },
   
   "DistributionBot": {
-    "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
-    "RunAt": "19:15:00"
-  },
-  
-  "MailBot": {
-    "SpreadsheetId": "1v0D2ECmxUN9-8CnmS-WWIM41hacc2qlPsoXaZBR1bzE",
-    "TableName": "Лист1"
+    "SpreadsheetId": "1GjJtk_K64jXamzA3wVISEYUiSdsinzhVthWEg7FKx9k",
+    "RunAt": "20:00:00"
   },
   
   "Culture": {
     "Name": "en-US",
-    "TimeZone": "Russian Standard Time"
+    "TimeZone": "Eastern Standard Time"
   },
   
   "Urls": {
