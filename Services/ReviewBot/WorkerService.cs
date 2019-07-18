@@ -58,7 +58,8 @@ namespace MaximEmmBots.Services.ReviewBot
         {
             try
             {
-                await GetScriptRunnerTask(cancellationToken);
+                await Task.WhenAny(GetScriptRunnerTask(cancellationToken),
+                    Task.Delay(TimeSpan.FromMinutes(10d), cancellationToken));
                 await GetNotifierTask(cancellationToken);
             }
             catch (Exception e) when (!(e is OperationCanceledException))
