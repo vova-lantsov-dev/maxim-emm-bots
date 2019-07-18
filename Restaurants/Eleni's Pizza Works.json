@@ -1,13 +1,7 @@
 {
-  "ChatId": -1001463899405,
+  "ChatId": -395625310,
   "AdminIds": [ 336510341 ],
   "PlaceInfo": "Eleni's Pizza Works",
-  
-  "GuestsBot": {
-    "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
-    "TableName": "Ответы на форму (1)",
-    "ColumnOfName": 3
-  },
   
   "StatsBot": {
     "Schedulers": [
@@ -30,19 +24,14 @@
     "RunAt": "20:00:00"
   },
   
-  "MailBot": {
-    "SpreadsheetId": "1v0D2ECmxUN9-8CnmS-WWIM41hacc2qlPsoXaZBR1bzE",
-    "TableName": "Лист1"
-  },
-  
   "Culture": {
     "Name": "en-US",
-    "TimeZone": "America/New_York"
+    "TimeZone": "Eastern Standard Time"
   },
   
   "Urls": {
     "tripadvisor": "https://www.tripadvisor.com/Restaurant_Review-g34618-d4254925-Reviews-Eleni_s_Pizza_Works-Sarasota_Florida.html",
-    "google": "https://goo.gl/maps/CooFMVXpkVkW1em1A",
+    "google": "4503960160230426952",
     "foursquare": "https://ru.foursquare.com/v/elenis-pizzaworks/4b9e8bdef964a520c3ed36e3",
     "facebook": "https://www.facebook.com/elenispizzaworks/reviews/",
     "yelp": "https://www.yelp.com/biz/elenis-pizza-works-sarasota"

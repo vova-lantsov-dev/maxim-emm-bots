@@ -26,18 +26,21 @@ namespace MaximEmmBots.Services.ReviewBot
         private readonly Context _context;
         private readonly ITelegramBotClient _client;
         private readonly CultureService _cultureService;
+        private readonly IHostEnvironment _env;
         
         public WorkerService(IOptions<DataOptions> options,
             ILoggerFactory loggerFactory,
             Context context,
             ITelegramBotClient client,
-            CultureService cultureService)
+            CultureService cultureService,
+            IHostEnvironment env)
         {
             _data = options.Value.Data;
             _logger = loggerFactory.CreateLogger("ReviewBotWorkerService");
             _context = context;
             _client = client;
             _cultureService = cultureService;
+            _env = env;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,15 +49,8 @@ namespace MaximEmmBots.Services.ReviewBot
             
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
-                {
-                    await Task.WhenAll(GetWorkerTask(stoppingToken),
-                        Task.Delay(TimeSpan.FromMinutes(60d), stoppingToken));
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Error occurred while running WhenAll method");
-                }
+                await Task.WhenAll(GetWorkerTask(stoppingToken),
+                    Task.Delay(TimeSpan.FromMinutes(60d), stoppingToken));
             }
         }
 
@@ -62,11 +58,9 @@ namespace MaximEmmBots.Services.ReviewBot
         {
             try
             {
-                var initialCount = await _context.Reviews.CountDocumentsAsync(FilterDefinition<Review>.Empty,
-                    cancellationToken: cancellationToken);
-                
-                await GetScriptRunnerTask(cancellationToken);
-                await GetNotifierTask(initialCount, cancellationToken);
+                await Task.WhenAny(GetScriptRunnerTask(cancellationToken),
+                    Task.Delay(TimeSpan.FromMinutes(10d), cancellationToken));
+                await GetNotifierTask(cancellationToken);
             }
             catch (Exception e) when (!(e is OperationCanceledException))
             {
@@ -78,14 +72,12 @@ namespace MaximEmmBots.Services.ReviewBot
         {
             return Task.Run(() =>
             {
-                foreach (var restaurant in _data.Restaurants)
+                foreach (var restaurant in _data.Restaurants.Where(r => r.Urls != null))
                 {
-                    if (restaurant.Urls == null)
-                        continue;
-                    
                     foreach (var (resource, link) in restaurant.Urls)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        
                         var processInfo = new ProcessStartInfo
                         {
                             WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
@@ -100,74 +92,88 @@ namespace MaximEmmBots.Services.ReviewBot
             }, cancellationToken);
         }
         
-        private async Task GetNotifierTask(long initialCountOfReviews, CancellationToken cancellationToken)
+        private async Task GetNotifierTask(CancellationToken cancellationToken)
         {
-            if (initialCountOfReviews == 0)
-            {
-                await _context.Reviews.UpdateManyAsync(FilterDefinition<Review>.Empty,
-                    Builders<Review>.Update.Set(r => r.NeedToShow, false));
-                return;
-            }
-            
             var notSentReviews = await _context.Reviews
                 .Find(r => r.NeedToShow)
                 .SortByDescending(r => r.Id)
                 .ToListAsync(cancellationToken);
-            
+
             if (notSentReviews.Count == 0)
-                return;
-            
-            foreach (var notSentReviewGroup in notSentReviews.GroupBy(r => r.Resource))
             {
-                foreach (var notSentReview in notSentReviewGroup.Take(5))
+                if (_env.IsDevelopment())
+                    _logger.LogInformation("Count of notSentReviews is 0.");
+                
+                return;
+            }
+            
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            foreach (var restaurantGroup in notSentReviews.GroupBy(r => r.RestaurantName))
+            {
+                var restaurant = _data.Restaurants.Find(r => r.Name == restaurantGroup.Key);
+                if (restaurant == default)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var restaurant = _data.Restaurants.Find(r => r.Name == notSentReview.RestaurantName);
-                    if (restaurant == default)
-                        continue;
-
-                    var model = _cultureService.ModelFor(restaurant);
-
-                    var buttons = new List<List<InlineKeyboardButton>>();
-                    if ((notSentReview.Comments?.Count ?? 0) > 0)
-                        buttons.Add(new List<InlineKeyboardButton>
-                        {
-                            new InlineKeyboardButton
-                            {
-                                Text = model.ViewFeedback,
-                                CallbackData = $"comments~{notSentReview.Id}"
-                            }
-                        });
-                    if (!notSentReview.IsReadOnly && notSentReview.ReplyLink != null &&
-                        notSentReview.Resource != "google")
-                        buttons.Add(new List<InlineKeyboardButton>
-                        {
-                            new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
-                        });
-
-                    var chatId = restaurant.ChatId;
-                    var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
-                            _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
-                                out var maxValueOfRating)
-                                ? maxValueOfRating
-                                : -1,
-                            _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                        ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
-                            ? new InlineKeyboardMarkup(buttons)
-                            : null);
-
-                    if (notSentReview.Resource == "google")
-                        await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
-                            Builders<GoogleReviewMessage>.Update.Set(grm => grm.MessageId, sentMessage.MessageId),
-                            new UpdateOptions {IsUpsert = true}, cancellationToken);
-
-                    await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
-                        Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                    _logger.LogInformation("Restaurant named '{0}' was not found.", restaurantGroup.Key);
+                    return;
                 }
 
-                await _context.Reviews.UpdateManyAsync(r => r.Resource == notSentReviewGroup.Key && r.NeedToShow,
-                    Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                foreach (var notSentReviewGroup in restaurantGroup.GroupBy(r => r.Resource))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    
+                    if (_env.IsDevelopment())
+                    {
+                        await _client.SendTextMessageAsync(restaurant.ChatId,
+                            $"Resource: {notSentReviewGroup.Key}\nCount of reviews: {notSentReviewGroup.Count()}");
+                    }
+                    
+                    foreach (var notSentReview in notSentReviewGroup.Take(5))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var model = _cultureService.ModelFor(restaurant);
+
+                        var buttons = new List<InlineKeyboardButton[]>();
+                        if ((notSentReview.Comments?.Count ?? 0) > 0)
+                            buttons.Add(new[]
+                            {
+                                new InlineKeyboardButton
+                                {
+                                    Text = model.ViewFeedback,
+                                    CallbackData = $"comments~{notSentReview.Id}"
+                                }
+                            });
+                        if (!notSentReview.IsReadOnly && notSentReview.ReplyLink != null &&
+                            notSentReview.Resource != "google")
+                            buttons.Add(new[]
+                            {
+                                new InlineKeyboardButton {Text = model.OpenReview, Url = notSentReview.ReplyLink}
+                            });
+
+                        var chatId = restaurant.ChatId;
+                        var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
+                                _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
+                                    out var maxValueOfRating)
+                                    ? maxValueOfRating
+                                    : -1,
+                                _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
+                            ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                                ? new InlineKeyboardMarkup(buttons)
+                                : null);
+
+                        if (notSentReview.Resource == "google")
+                            await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
+                                Builders<GoogleReviewMessage>.Update.Set(grm => grm.MessageId, sentMessage.MessageId),
+                                new UpdateOptions {IsUpsert = true});
+
+                        await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
+                            Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                    }
+
+                    await _context.Reviews.UpdateManyAsync(r => r.Resource == notSentReviewGroup.Key && r.NeedToShow,
+                        Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                }
             }
         }
     }

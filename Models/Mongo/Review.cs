@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Serializers;
 using MongoDB.Bson;
@@ -102,9 +103,7 @@ namespace MaximEmmBots.Models.Mongo
             if (!string.IsNullOrWhiteSpace(Text))
             {
                 result.Append('\n');
-                result.AppendFormat(model.TextForReview, Regex.Replace(Text,
-                    "(?<token>[*_\\\\`\\\\[\\]])",
-                    m => $"\\{m.Groups["token"].Value}"));
+                result.AppendFormat(model.TextForReview, HtmlEncoder.Default.Encode(Text));
             }
 
             return result.ToString();
