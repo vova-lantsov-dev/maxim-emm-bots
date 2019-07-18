@@ -17,7 +17,6 @@ using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
-using GuestsBotWorkerService = MaximEmmBots.Services.GuestsBot.WorkerService;
 using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
 using MailBotWorkerService = MaximEmmBots.Services.MailBot.WorkerService;
 
@@ -66,8 +65,7 @@ namespace MaximEmmBots.Extensions
 
         internal static void AddGuestsBot(this IServiceCollection services)
         {
-            services.AddSingleton<GuestsBotSheetsService>();
-            services.AddHostedService<GuestsBotWorkerService>();
+            services.AddSingleton<IScheduler, GuestsBotScheduler>();
         }
 
         internal static void AddDistributionBot(this IServiceCollection services)
