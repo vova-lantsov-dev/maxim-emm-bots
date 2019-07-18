@@ -51,6 +51,7 @@ namespace MaximEmmBots.Services.GuestsBot
             var spreadsheetId = $"{restaurant.GuestsBot.TableName}!$A$1:$YY";
             var response = await _googleSheetsService.GetValueRangeAsync(restaurant.GuestsBot.SpreadsheetId,
                 spreadsheetId, cancellationToken);
+            
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (_env.IsDevelopment())
@@ -61,24 +62,18 @@ namespace MaximEmmBots.Services.GuestsBot
             }
 
             var today = _cultureService.NowFor(restaurant).Date;
+            var culture = _cultureService.CultureFor(restaurant);
 
             var questions = response.Values[0].Select(questionColumn => questionColumn.ToString()).ToList();
-            var russianCulture = _cultureService.CultureFor(restaurant);
 
             foreach (var row in response.Values.Skip(1))
             {
                 if (row.Count <= 1)
-                {
-                    _logger.LogTrace("Columns count is {0}", row.Count);
                     continue;
-                }
 
-                if (!DateTime.TryParseExact(row[0].ToString(), "G", russianCulture,
+                if (!DateTime.TryParseExact(row[0].ToString(), "G", culture,
                         DateTimeStyles.AllowWhiteSpaces, out var rowDate) || rowDate.Date != today)
-                {
-                    _logger.LogTrace("Date time convert failed or day not equals");
                     continue;
-                }
 
                 var filter = Builders<SentForm>.Filter.And(
                     Builders<SentForm>.Filter.Eq(f => f.Date, rowDate.Date),
@@ -88,10 +83,7 @@ namespace MaximEmmBots.Services.GuestsBot
                 try
                 {
                     if (await _context.SentForms.Find(filter).AnyAsync(cancellationToken))
-                    {
-                        _logger.LogTrace("Form already sent");
                         continue;
-                    }
 
                     await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
                             .Push(c => c.Items,
