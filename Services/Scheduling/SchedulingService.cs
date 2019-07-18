@@ -15,7 +15,7 @@ namespace MaximEmmBots.Services.Scheduling
     {
         private readonly CancellationToken _stoppingToken;
         private readonly CultureService _cultureService;
-        private readonly List<Task> _runningTasks = new List<Task>();
+        private readonly IEnumerable<Task> _runningTasks;
         private readonly ILogger<SchedulingService> _logger;
 
         public SchedulingService(IHostApplicationLifetime lifetime,
@@ -28,8 +28,9 @@ namespace MaximEmmBots.Services.Scheduling
             _logger = logger;
             _stoppingToken = lifetime.ApplicationStopping;
             
-            _runningTasks.AddRange(dataOptions.Value.Data.Restaurants
-                .SelectMany(r => schedulers.Select(s => RunSchedulerAsync(s, r))));
+            _runningTasks = dataOptions.Value.Data.Restaurants.SelectMany(r =>
+                schedulers.Where(s => s.SchedulingTime(r) != Timeout.InfiniteTimeSpan)
+                    .Select(s => RunSchedulerAsync(s, r)));
         }
 
         private async Task RunSchedulerAsync(IScheduler scheduler, Restaurant restaurant)
