@@ -14,7 +14,6 @@ using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-
 // ReSharper disable MethodSupportsCancellation
 
 namespace MaximEmmBots.Services.ReviewBot
@@ -58,8 +57,7 @@ namespace MaximEmmBots.Services.ReviewBot
         {
             try
             {
-                await Task.WhenAny(GetScriptRunnerTask(cancellationToken),
-                    Task.Delay(TimeSpan.FromMinutes(10d), cancellationToken));
+                await GetScriptRunnerTask(cancellationToken);
                 await GetNotifierTask(cancellationToken);
             }
             catch (Exception e) when (!(e is OperationCanceledException))
@@ -115,7 +113,7 @@ namespace MaximEmmBots.Services.ReviewBot
                 if (restaurant == default)
                 {
                     _logger.LogInformation("Restaurant named '{0}' was not found.", restaurantGroup.Key);
-                    return;
+                    continue;
                 }
 
                 foreach (var notSentReviewGroup in restaurantGroup.GroupBy(r => r.Resource))
