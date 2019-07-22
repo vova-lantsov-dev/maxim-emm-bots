@@ -38,15 +38,15 @@
     <ItemGroup>
       <None Remove="Restaurants\BLOODY MARY Bar &amp; Grill.json" />
       <Content Include="Restaurants\BLOODY MARY Bar &amp; Grill.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="Restaurants\Brisket Eat &amp; Fun.json" />
       <Content Include="Restaurants\Brisket Eat &amp; Fun.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="Restaurants\Eleni's Pizza Works.json" />
       <Content Include="Restaurants\Eleni's Pizza Works.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
