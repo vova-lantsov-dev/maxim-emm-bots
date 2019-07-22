@@ -48,8 +48,7 @@ namespace MaximEmmBots.Services.ReviewBot
             
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.WhenAll(GetWorkerTask(stoppingToken),
-                    Task.Delay(TimeSpan.FromMinutes(60d), stoppingToken));
+                await GetWorkerTask(stoppingToken);
             }
         }
 
