@@ -30,7 +30,7 @@ namespace MaximEmmBots.Services.Scheduling
             
             _runningTasks = dataOptions.Value.Data.Restaurants.SelectMany(r =>
                 schedulers.Where(s => s.SchedulingTime(r) != Timeout.InfiniteTimeSpan)
-                    .Select(s => RunSchedulerAsync(s, r)));
+                    .Select(s => RunSchedulerAsync(s, r))).ToArray();
         }
 
         private async Task RunSchedulerAsync(IScheduler scheduler, Restaurant restaurant)
