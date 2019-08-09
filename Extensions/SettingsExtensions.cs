@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
@@ -15,7 +15,7 @@ namespace MaximEmmBots.Extensions
         {
             var settingsFilePath = Path.Combine(BasePath, "settings.json");
             await using var settingsFile = File.OpenRead(settingsFilePath);
-            return await JsonSerializer.ReadAsync<Data>(settingsFile);
+            return await JsonSerializer.DeserializeAsync<Data>(settingsFile);
         }
 
         internal static async IAsyncEnumerable<Restaurant> YieldRestaurantsAsync()
@@ -24,7 +24,7 @@ namespace MaximEmmBots.Extensions
             foreach (var filePath in Directory.GetFiles(dirPath, "*.json", SearchOption.AllDirectories))
             {
                 await using var fileWithRestaurant = File.OpenRead(filePath);
-                var restaurant = await JsonSerializer.ReadAsync<Restaurant>(fileWithRestaurant);
+                var restaurant = await JsonSerializer.DeserializeAsync<Restaurant>(fileWithRestaurant);
                 restaurant.Name = Path.GetFileNameWithoutExtension(filePath);
                 yield return restaurant;
             }
@@ -37,7 +37,7 @@ namespace MaximEmmBots.Extensions
             {
                 await using var languageFile = File.OpenRead(languageFilePath);
                 var languageName = Path.GetFileNameWithoutExtension(languageFilePath);
-                var languageModel = await JsonSerializer.ReadAsync<LocalizationModel>(languageFile);
+                var languageModel = await JsonSerializer.DeserializeAsync<LocalizationModel>(languageFile);
                 yield return (languageName, languageModel);
             }
         }

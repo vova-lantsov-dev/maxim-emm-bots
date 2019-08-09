@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
@@ -147,12 +147,15 @@ namespace MaximEmmBots.Services
                             return;
                         }
 
-                        var jsonContent = JsonSerializer.ToString(new {comment = update.Message.Text});
+                        await using var jsonContent = new MemoryStream();
+                        await JsonSerializer.SerializeAsync(jsonContent, new {comment = update.Message.Text},
+                            cancellationToken: cancellationToken);
 
                         var httpRequest = new HttpRequestMessage(HttpMethod.Put, review.ReplyLink);
                         httpRequest.Headers.Authorization =
                             new AuthenticationHeaderValue("Bearer", googleCredential.AccessToken);
-                        httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                        httpRequest.Content = new StreamContent(jsonContent);
+                        httpRequest.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                         await _httpClient.SendAsync(httpRequest, cancellationToken);
 
                         await _client.SendTextMessageAsync(m.Chat, model.ResponseToReviewSent,
