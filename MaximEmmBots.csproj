@@ -37,17 +37,11 @@
 
     <ItemGroup>
       <None Remove="Restaurants\BLOODY MARY Bar &amp; Grill.json" />
-      <Content Include="Restaurants\BLOODY MARY Bar &amp; Grill.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <Content Include="Restaurants\BLOODY MARY Bar &amp; Grill.json" />
       <None Remove="Restaurants\Brisket Eat &amp; Fun.json" />
-      <Content Include="Restaurants\Brisket Eat &amp; Fun.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <Content Include="Restaurants\Brisket Eat &amp; Fun.json" />
       <None Remove="Restaurants\Eleni's Pizza Works.json" />
-      <Content Include="Restaurants\Eleni's Pizza Works.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <Content Include="Restaurants\Eleni's Pizza Works.json" />
     </ItemGroup>
 
 </Project>

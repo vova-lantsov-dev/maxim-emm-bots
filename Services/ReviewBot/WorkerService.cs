@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 // ReSharper disable MethodSupportsCancellation
@@ -171,15 +172,42 @@ namespace MaximEmmBots.Services.ReviewBot
                             });
 
                         var chatId = restaurant.ChatId;
-                        var sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
-                                _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
-                                    out var maxValueOfRating)
-                                    ? maxValueOfRating
-                                    : -1,
-                                _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                            ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
-                                ? new InlineKeyboardMarkup(buttons)
-                                : null);
+
+                        Message sentMessage;
+                        if (notSentReview.Photos == null || notSentReview.Photos.Count == 0 ||
+                            notSentReview.Photos.Count > 1)
+                        {
+                            sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
+                                    _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
+                                        out var maxValueOfRating)
+                                        ? maxValueOfRating
+                                        : -1,
+                                    _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
+                                ParseMode.Html, notSentReview.Resource == "instagram",
+                                cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                                    ? new InlineKeyboardMarkup(buttons)
+                                    : null);
+
+                            if (notSentReview.Photos != null && notSentReview.Photos.Count > 1)
+                            {
+                                await _client.SendMediaGroupAsync(notSentReview.Photos.Select(p =>
+                                    (IAlbumInputMedia) new InputMediaPhoto(new InputMedia(p))), chatId,
+                                    cancellationToken: cancellationToken);
+                            }
+                        }
+                        else
+                        {
+                            sentMessage = await _client.SendPhotoAsync(chatId, notSentReview.Photos[0],
+                                notSentReview.ToString(model,
+                                    _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
+                                        out var maxValueOfRating)
+                                        ? maxValueOfRating
+                                        : -1,
+                                    _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
+                                ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                                    ? new InlineKeyboardMarkup(buttons)
+                                    : null);
+                        }
 
                         if (notSentReview.Resource == "google")
                             await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
