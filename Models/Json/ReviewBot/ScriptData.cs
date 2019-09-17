@@ -6,6 +6,8 @@ namespace MaximEmmBots.Models.Json.ReviewBot
         
         public string Arguments { get; set; }
         
+        public string InstagramArguments { get; set; }
+        
         public string FileName { get; set; }
     }
 }

@@ -74,6 +74,28 @@ namespace MaximEmmBots.Services.ReviewBot
                     foreach (var (resource, link) in restaurant.Urls)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+
+                        if (resource == "instagram")
+                        {
+                            var instaEntries = link.Split(';');
+                            foreach (var (type, uri) in instaEntries.Select(entry =>
+                            {
+                                var entryItems = entry.Split('=');
+                                return (entryItems[0], entryItems[1]);
+                            }))
+                            {
+                                var instaProcessInfo = new ProcessStartInfo
+                                {
+                                    WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
+                                    Arguments = string.Format(_data.ReviewBot.Script.InstagramArguments, resource, type,
+                                        uri, restaurant.Name),
+                                    FileName = _data.ReviewBot.Script.FileName
+                                };
+                                var instaProcess = Process.Start(instaProcessInfo);
+                                instaProcess?.WaitForExit();
+                            }
+                            continue;
+                        }
                         
                         var processInfo = new ProcessStartInfo
                         {
