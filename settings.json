@@ -1,0 +1,34 @@
+{
+  "Bot": {
+    "Token": "780743314:AAF1b45LXTWGxGw9RSEO1W1YEjtT4lUaBMU",
+    "Username": "@BrisketReminderBot",
+    "GroupReloadCommand": "/reload",
+    "PrivateReloadCommand": "/work"
+  },
+  "MongoConnectionString": "mongodb://localhost:27017",
+  "GoogleCredentials": {
+    "client_id": "976504223282-aic3d1fr4u6041lifp8iq6mb9bh5c9i5.apps.googleusercontent.com",
+    "client_secret": "IOgh7TuQDuTDbJtR3V0eBuYx"
+  },
+  "ReviewBot": {
+    "Script": {
+      "WorkingDirectory": "C:\\Users\\Vova Lantsov\\source\\repos\\reviewbot",
+      "Arguments": "run --rm scrapy scrapy crawl {0} -a uri=\"{1}\" -a restaurant_name=\"{2}\" -a use_proxy=\"1\"",
+      "InstagramArguments": "run --rm scrapy scrapy crawl {0} -a type=\"{1}\" -a uri=\"{2}\" -a restaurant_name=\"{3}\" -a use_proxy=\"1\"",
+      "FileName": "docker-compose"
+    },
+    "MaxValuesOfRating": {
+      "yell": 5,
+      "restoclub": 10,
+      "restorating": 10,
+      "google": 5,
+      "tripadvisor": 5,
+      "yelp": 5
+    },
+    "PreferAvatarOverProfileLinkFor": [ "yell", "tripadvisor" ]
+  },
+  "MailBot": {
+    "SpreadsheetId": "1v0D2ECmxUN9-8CnmS-WWIM41hacc2qlPsoXaZBR1bzE",
+    "TableName": "Лист1"
+  }
+}

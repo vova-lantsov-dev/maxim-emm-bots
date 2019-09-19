@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Gmail.v1;
@@ -34,7 +35,7 @@ namespace MaximEmmBots.Services.MailBot
         }
 
         public async IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant,
-            string checklistName, string nofityMessage, CancellationToken cancellationToken)
+            string checklistName, string nofityMessage, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             const string userId = "me";
 

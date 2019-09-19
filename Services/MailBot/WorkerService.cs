@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
@@ -54,7 +55,7 @@ namespace MaximEmmBots.Services.MailBot
         }
 
         private async IAsyncEnumerable<SentChecklist> YieldChecklistWatchdogEntryAsync(
-            IList<IList<object>> rows, CancellationToken cancellationToken)
+            IList<IList<object>> rows, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var entries = new ChecklistWatchdogEntry[rows.Count - 1];
             for (var i = 0; i < entries.Length; i++)

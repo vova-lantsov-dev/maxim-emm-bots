@@ -31,7 +31,7 @@ namespace MaximEmmBots
             };
             
             await new HostBuilder()
-                .UseEnvironment(Environments.Development)
+                .UseEnvironment(Environments.Staging)
                 .ConfigureServices(serviceCollection =>
                 {
                     serviceCollection.AddGeneralServices(data);

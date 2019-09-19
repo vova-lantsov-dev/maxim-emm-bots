@@ -103,7 +103,12 @@ namespace MaximEmmBots.Models.Mongo
             if (!string.IsNullOrWhiteSpace(Text))
             {
                 result.Append('\n');
-                result.AppendFormat(model.TextForReview, HtmlEncoder.Default.Encode(Text));
+                var text = new string(Text.Take(1021 - result.Length).ToArray());
+                if (Text.Length > text.Length)
+                {
+                    text += "...";
+                }
+                result.AppendFormat(model.TextForReview, HtmlEncoder.Default.Encode(text));
             }
 
             return result.ToString();
