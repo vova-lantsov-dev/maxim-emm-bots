@@ -42,7 +42,7 @@ namespace MaximEmmBots.Services.MailBot
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var valueRange = await _sheetsService.GetValueRangeAsync(_data.MailBot.SpreadsheetId,
-                $"{_data.MailBot.TableName}!$A$1:$YY", cancellationToken);
+                $"{_data.MailBot.TableName}!$A$1:$YY", cancellationToken).ConfigureAwait(false);
             if (valueRange == null)
                 return;
 
@@ -50,7 +50,7 @@ namespace MaximEmmBots.Services.MailBot
                 cancellationToken))
             {
                 sentChecklist.Id = ObjectId.GenerateNewId();
-                await _context.SentChecklists.InsertOneAsync(sentChecklist, null, cancellationToken);
+                await _context.SentChecklists.InsertOneAsync(sentChecklist, null, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -100,7 +100,7 @@ namespace MaximEmmBots.Services.MailBot
                         for (var j = 0; j < separatedDays.Length; j++)
                         {
                             var day = separatedDays[j];
-                            if (day.Contains('-'))
+                            if (day.Contains('-', StringComparison.Ordinal))
                             {
                                 var dayRange = day.Split('-', 2);
                                 int.TryParse(dayRange[0], out var start);
@@ -125,7 +125,7 @@ namespace MaximEmmBots.Services.MailBot
                 entries[i] = entry;
             }
 
-            var sentChecklists = new BlockingCollection<SentChecklist>();
+            using var sentChecklists = new BlockingCollection<SentChecklist>();
             var tasks = new Task[entries.Length];
             for (var i = 0; i < entries.Length; i++)
                 tasks[i] = RunChecklistWatchdogForEntryAsync(entries[i], sentChecklists, cancellationToken);
@@ -137,7 +137,7 @@ namespace MaximEmmBots.Services.MailBot
                 yield return sentChecklist;
 
             if (!resultTask.IsCompleted)
-                await resultTask;
+                await resultTask.ConfigureAwait(false);
             else if (resultTask.IsFaulted)
                 // ReSharper disable once PossibleNullReferenceException
                 throw resultTask.Exception;
@@ -165,7 +165,7 @@ namespace MaximEmmBots.Services.MailBot
             
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(GetDelay(out var todayIsDayOfWeek, out var todayIsDayOfMonth), cancellationToken);
+                await Task.Delay(GetDelay(out var todayIsDayOfWeek, out var todayIsDayOfMonth), cancellationToken).ConfigureAwait(false);
 
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (entry.Type)
@@ -208,13 +208,13 @@ namespace MaximEmmBots.Services.MailBot
                     {
                         if (entry.NotifyNotFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyNotFoundMessage))
                             await _client.SendTextMessageAsync(entry.NotifyNotFoundChatId, entry.NotifyNotFoundMessage,
-                                disableWebPagePreview: true, cancellationToken: cancellationToken);
+                                disableWebPagePreview: true, cancellationToken: cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
                         if (entry.NotifyFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyFoundMessage))
                             await _client.SendTextMessageAsync(entry.NotifyFoundChatId, entry.NotifyFoundMessage,
-                                disableWebPagePreview: true, cancellationToken: cancellationToken);
+                                disableWebPagePreview: true, cancellationToken: cancellationToken).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)

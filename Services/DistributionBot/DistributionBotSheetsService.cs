@@ -62,18 +62,18 @@ namespace MaximEmmBots.Services.DistributionBot
             if (_env.IsDevelopment())
             {
                 await _client.SendTextMessageAsync(restaurant.ChatId, $"Range is {range}\n\nRequested date is {forDate}",
-                    cancellationToken: stoppingToken);
+                    cancellationToken: stoppingToken).ConfigureAwait(false);
             }
             
             var response =
                 await _googleSheetsService.GetValueRangeAsync(restaurant.DistributionBot.SpreadsheetId, range,
-                    stoppingToken);
+                    stoppingToken).ConfigureAwait(false);
 
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (userId > 0)
                     await _client.SendTextMessageAsync(userId, model.TimeBoardIsNotAvailableForThisMonth,
-                        cancellationToken: stoppingToken);
+                        cancellationToken: stoppingToken).ConfigureAwait(false);
                 return;
             }
 
@@ -112,7 +112,7 @@ namespace MaximEmmBots.Services.DistributionBot
                 if (rowUserId == 0 || userId > 0 && rowUserId != userId)
                     continue;
 
-                privates[rowUserId] = string.Format(model.YouWorkAt, name, dateText,
+                privates[rowUserId] = string.Format(culture, model.YouWorkAt, name, dateText,
                     new string($"{dayText} {restaurant.PlaceInfo}".AsSpan().TrimEnd()));
             }
             
@@ -124,12 +124,12 @@ namespace MaximEmmBots.Services.DistributionBot
                 var privateTextBuilder = new StringBuilder();
                 privateTextBuilder.Append(privateText);
                 privateTextBuilder.Append("\n\n");
-                privateTextBuilder.AppendFormat(model.WhoWorksWithYou, dateText);
+                privateTextBuilder.AppendFormat(culture, model.WhoWorksWithYou, dateText);
                 privateTextBuilder.Append('\n');
                 privateTextBuilder.AppendJoin('\n', users.Where(u => u.userId != privateUserId).Select(
                     u => u.userId > 0
-                        ? string.Format(model.TimeForUserWithTelegram, u.name, u.time, u.userId)
-                        : string.Format(model.TimeForUserWithoutTelegram, u.name, u.time)));
+                        ? string.Format(culture, model.TimeForUserWithTelegram, u.name, u.time, u.userId)
+                        : string.Format(culture, model.TimeForUserWithoutTelegram, u.name, u.time)));
 
                 try
                 {
@@ -147,7 +147,7 @@ namespace MaximEmmBots.Services.DistributionBot
                     await _context.UserRestaurantPairs
                         .UpdateOneAsync(ur => ur.RestaurantId == restaurant.ChatId && ur.UserId == privateUserId,
                         Builders<UserRestaurantPair>.Update.SetOnInsert(ur => ur.Id, ObjectId.GenerateNewId()),
-                        new UpdateOptions {IsUpsert = true}, stoppingToken);
+                        new UpdateOptions {IsUpsert = true}, stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -158,16 +158,16 @@ namespace MaximEmmBots.Services.DistributionBot
             if (userId == 0)
             {
                 var groupTextBuilder = new StringBuilder();
-                groupTextBuilder.AppendFormat(model.WhoWorksAtDate, dateText, restaurant.PlaceInfo);
+                groupTextBuilder.AppendFormat(culture, model.WhoWorksAtDate, dateText, restaurant.PlaceInfo);
                 groupTextBuilder.Append('\n');
                 groupTextBuilder.AppendJoin('\n', users.Select(u => u.userId > 0
-                    ? string.Format(model.TimeForUserWithTelegram, u.name, u.time, u.userId)
-                    : string.Format(model.TimeForUserWithoutTelegram, u.name, u.time)));
+                    ? string.Format(culture, model.TimeForUserWithTelegram, u.name, u.time, u.userId)
+                    : string.Format(culture, model.TimeForUserWithoutTelegram, u.name, u.time)));
 
                 try
                 {
                     await _client.SendTextMessageAsync(restaurant.ChatId, groupTextBuilder.ToString(),
-                        ParseMode.Html, cancellationToken: stoppingToken);
+                        ParseMode.Html, cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

@@ -55,8 +55,8 @@ namespace MaximEmmBots.Services.StatsBot
             };
             var url = "chart?" + string.Join('&', query.Select(it => $"{it.Key}={it.Value}"));
             
-            await using var respStream = await _client.GetStreamAsync(url);
-            await respStream.CopyToAsync(destinationStream);
+            await using var respStream = await _client.GetStreamAsync(url).ConfigureAwait(false);
+            await respStream.CopyToAsync(destinationStream).ConfigureAwait(false);
             destinationStream.Position = 0L;
         }
     }

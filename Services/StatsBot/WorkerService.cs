@@ -82,7 +82,7 @@ namespace MaximEmmBots.Services.StatsBot
                 .Find(ss => ss.StatId == statScheduler.Id)
                 .SortByDescending(ss => ss.SentDate)
                 .Project(ss => ss.SentDate)
-                .FirstOrDefaultAsync(stoppingToken);
+                .FirstOrDefaultAsync(stoppingToken).ConfigureAwait(false);
             _logger.LogDebug("LastStat is {0}", lastStat);
 
             if (lastStat == default)
@@ -126,7 +126,7 @@ namespace MaximEmmBots.Services.StatsBot
                 return delayTimeTemp;
             }
 
-            await Task.Delay(GetDelayTime(), stoppingToken);
+            await Task.Delay(GetDelayTime(), stoppingToken).ConfigureAwait(false);
 
             var culture = _cultureService.CultureFor(restaurant);
 
@@ -135,7 +135,7 @@ namespace MaximEmmBots.Services.StatsBot
                 var now = _cultureService.NowFor(restaurant);
                 var statsForPeriod = await _context.SentForms
                     .Find(sf => sf.Date >= lastStat && sf.Date <= now.Date && sf.RestaurantId == restaurant.ChatId)
-                    .ToListAsync(stoppingToken);
+                    .ToListAsync(stoppingToken).ConfigureAwait(false);
 
                 var pieChartDictionary = new Dictionary<string, int>();
                 foreach (var stat in statsForPeriod)
@@ -161,16 +161,16 @@ namespace MaximEmmBots.Services.StatsBot
 
                 await using (var ms = new MemoryStream())
                 {
-                    await _chartClient.LoadDoughnutPieChartAsync(ms, pieChartItems);
+                    await _chartClient.LoadDoughnutPieChartAsync(ms, pieChartItems).ConfigureAwait(false);
                     var model = _cultureService.ModelFor(restaurant);
                     await _client.SendPhotoAsync(restaurant.ChatId, ms,
-                        string.Format(model.StatsForPeriod, (lastStat + sendAt).ToString("G", culture),
-                            now.ToString("G", culture)), ParseMode.Html, cancellationToken: stoppingToken);
+                        string.Format(culture, model.StatsForPeriod, (lastStat + sendAt).ToString("G", culture),
+                            now.ToString("G", culture)), ParseMode.Html, cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
 
                 lastStat = now.Date;
                 
-                await Task.Delay(GetDelayTime(), stoppingToken);
+                await Task.Delay(GetDelayTime(), stoppingToken).ConfigureAwait(false);
             }
         }
     }

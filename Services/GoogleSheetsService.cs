@@ -21,7 +21,7 @@ namespace MaximEmmBots.Services
 
             try
             {
-                return await request.ExecuteAsync(stoppingToken);
+                return await request.ExecuteAsync(stoppingToken).ConfigureAwait(false);
             }
             catch (Exception e) when (!(e is OperationCanceledException))
             {

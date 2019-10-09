@@ -48,7 +48,7 @@ namespace MaximEmmBots.Services.Scheduling
             {
                 try
                 {
-                    await Task.Delay(getSchedulingDelay(scheduler, restaurant), _stoppingToken);
+                    await Task.Delay(getSchedulingDelay(scheduler, restaurant), _stoppingToken).ConfigureAwait(false);
                 }
                 catch (TaskCanceledException)
                 {
@@ -66,7 +66,7 @@ namespace MaximEmmBots.Services.Scheduling
 
                 try
                 {
-                    await scheduler.OnElapseAsync(restaurant, _stoppingToken);
+                    await scheduler.OnElapseAsync(restaurant, _stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

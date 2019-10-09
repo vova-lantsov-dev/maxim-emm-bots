@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+
 // ReSharper disable MethodSupportsCancellation
 
 namespace MaximEmmBots.Services.ReviewBot
@@ -49,7 +51,7 @@ namespace MaximEmmBots.Services.ReviewBot
             
             while (!stoppingToken.IsCancellationRequested)
             {
-                await GetWorkerTask(stoppingToken);
+                await GetWorkerTask(stoppingToken).ConfigureAwait(false);
             }
         }
 
@@ -57,8 +59,8 @@ namespace MaximEmmBots.Services.ReviewBot
         {
             try
             {
-                await GetScriptRunnerTask(cancellationToken);
-                await GetNotifierTask(cancellationToken);
+                await GetScriptRunnerTask(cancellationToken).ConfigureAwait(false);
+                await GetNotifierTask(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e) when (!(e is OperationCanceledException))
             {
@@ -88,7 +90,7 @@ namespace MaximEmmBots.Services.ReviewBot
                                 var instaProcessInfo = new ProcessStartInfo
                                 {
                                     WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
-                                    Arguments = string.Format(_data.ReviewBot.Script.InstagramArguments, resource, type,
+                                    Arguments = string.Format(CultureInfo.InvariantCulture, _data.ReviewBot.Script.InstagramArguments, resource, type,
                                         uri, restaurant.Name),
                                     FileName = _data.ReviewBot.Script.FileName
                                 };
@@ -102,7 +104,7 @@ namespace MaximEmmBots.Services.ReviewBot
                         {
                             WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
                             Arguments =
-                                string.Format(_data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
+                                string.Format(CultureInfo.InvariantCulture, _data.ReviewBot.Script.Arguments, resource, link, restaurant.Name),
                             FileName = _data.ReviewBot.Script.FileName
                         };
                         var process = Process.Start(processInfo);
@@ -117,7 +119,7 @@ namespace MaximEmmBots.Services.ReviewBot
             var notSentReviews = await _context.Reviews
                 .Find(r => r.NeedToShow)
                 .SortByDescending(r => r.Id)
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
 
             if (notSentReviews.Count == 0)
             {
@@ -145,7 +147,7 @@ namespace MaximEmmBots.Services.ReviewBot
                     if (_env.IsDevelopment())
                     {
                         await _client.SendTextMessageAsync(restaurant.ChatId,
-                            $"Resource: {notSentReviewGroup.Key}\nCount of reviews: {notSentReviewGroup.Count()}");
+                            $"Resource: {notSentReviewGroup.Key}\nCount of reviews: {notSentReviewGroup.Count()}").ConfigureAwait(false);
                     }
                     
                     foreach (var notSentReview in notSentReviewGroup.Take(5))
@@ -153,6 +155,7 @@ namespace MaximEmmBots.Services.ReviewBot
                         cancellationToken.ThrowIfCancellationRequested();
 
                         var model = _cultureService.ModelFor(restaurant);
+                        var culture = _cultureService.CultureFor(restaurant);
 
                         var buttons = new List<InlineKeyboardButton[]>();
                         if ((notSentReview.Comments?.Count ?? 0) > 0)
@@ -177,7 +180,7 @@ namespace MaximEmmBots.Services.ReviewBot
                         if (notSentReview.Photos == null || notSentReview.Photos.Count == 0 ||
                             notSentReview.Photos.Count > 1)
                         {
-                            sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(model,
+                            sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(culture, model,
                                     _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
                                         out var maxValueOfRating)
                                         ? maxValueOfRating
@@ -186,19 +189,19 @@ namespace MaximEmmBots.Services.ReviewBot
                                 ParseMode.Html, notSentReview.Resource == "instagram",
                                 cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
                                     ? new InlineKeyboardMarkup(buttons)
-                                    : null);
+                                    : null).ConfigureAwait(false);
 
                             if (notSentReview.Photos != null && notSentReview.Photos.Count > 1)
                             {
                                 await _client.SendMediaGroupAsync(notSentReview.Photos.Select(p =>
                                     (IAlbumInputMedia) new InputMediaPhoto(new InputMedia(p))), chatId,
-                                    cancellationToken: cancellationToken);
+                                    cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                         }
                         else
                         {
                             sentMessage = await _client.SendPhotoAsync(chatId, notSentReview.Photos[0],
-                                notSentReview.ToString(model,
+                                notSentReview.ToString(culture, model,
                                     _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
                                         out var maxValueOfRating)
                                         ? maxValueOfRating
@@ -206,20 +209,20 @@ namespace MaximEmmBots.Services.ReviewBot
                                     _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
                                 ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
                                     ? new InlineKeyboardMarkup(buttons)
-                                    : null);
+                                    : null).ConfigureAwait(false);
                         }
 
                         if (notSentReview.Resource == "google")
                             await _context.GoogleReviewMessages.UpdateOneAsync(grm => grm.ReviewId == notSentReview.Id,
                                 Builders<GoogleReviewMessage>.Update.Set(grm => grm.MessageId, sentMessage.MessageId),
-                                new UpdateOptions {IsUpsert = true});
+                                new UpdateOptions {IsUpsert = true}).ConfigureAwait(false);
 
                         await _context.Reviews.UpdateOneAsync(r => r.Id == notSentReview.Id,
-                            Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                            Builders<Review>.Update.Set(r => r.NeedToShow, false)).ConfigureAwait(false);
                     }
 
                     await _context.Reviews.UpdateManyAsync(r => r.Resource == notSentReviewGroup.Key && r.NeedToShow,
-                        Builders<Review>.Update.Set(r => r.NeedToShow, false));
+                        Builders<Review>.Update.Set(r => r.NeedToShow, false)).ConfigureAwait(false);
                 }
             }
         }

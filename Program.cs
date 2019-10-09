@@ -10,9 +10,9 @@ namespace MaximEmmBots
 {
     internal static class Program
     {
-        private static async Task Main(string[] args)
+        private static async Task Main()
         {
-            var data = await SettingsExtensions.LoadDataAsync();
+            var data = await SettingsExtensions.LoadDataAsync().ConfigureAwait(false);
             
             data.Restaurants = new List<Restaurant>();
             await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync())
@@ -23,7 +23,7 @@ namespace MaximEmmBots
             await foreach (var (name, model) in languageModels)
                 languageDictionary[name] = model;
 
-            var googleCredential = await GoogleExtensions.AuthorizeAsync(data.GoogleCredentials);
+            var googleCredential = await GoogleExtensions.AuthorizeAsync(data.GoogleCredentials).ConfigureAwait(false);
             var googleInitializer = new BaseClientService.Initializer
             {
                 ApplicationName = "Telegram Bot",
@@ -45,9 +45,11 @@ namespace MaximEmmBots
                     
                     serviceCollection.AddGoogleServices(googleInitializer);
                     serviceCollection.AddLocalizationServices(languageDictionary);
+
+                    serviceCollection.AddHealthChecks();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
-                .RunConsoleAsync();
+                .RunConsoleAsync().ConfigureAwait(false);
         }
     }
 }

@@ -50,14 +50,14 @@ namespace MaximEmmBots.Services.GuestsBot
         {
             var spreadsheetId = $"{restaurant.GuestsBot.TableName}!$A$1:$YY";
             var response = await _googleSheetsService.GetValueRangeAsync(restaurant.GuestsBot.SpreadsheetId,
-                spreadsheetId, cancellationToken);
+                spreadsheetId, cancellationToken).ConfigureAwait(false);
             
             if (response?.Values == null || response.Values.Count == 0)
             {
                 if (_env.IsDevelopment())
                     await _client.SendTextMessageAsync(restaurant.ChatId,
                         $"Response for {SchedulerName} is null or empty.",
-                        cancellationToken: cancellationToken);
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace MaximEmmBots.Services.GuestsBot
 
                 try
                 {
-                    if (await _context.SentForms.Find(filter).AnyAsync(cancellationToken))
+                    if (await _context.SentForms.Find(filter).AnyAsync(cancellationToken).ConfigureAwait(false))
                         continue;
 
                     await _context.SentForms.UpdateOneAsync(filter, Builders<SentForm>.Update
@@ -93,14 +93,14 @@ namespace MaximEmmBots.Services.GuestsBot
                                     EmployeeName = row[restaurant.GuestsBot.ColumnOfName - 1].ToString()
                                 })
                             .SetOnInsert(c => c.Id, ObjectId.GenerateNewId()),
-                        new UpdateOptions {IsUpsert = true}, cancellationToken);
+                        new UpdateOptions {IsUpsert = true}, cancellationToken).ConfigureAwait(false);
 
                     await _client.SendTextMessageAsync(restaurant.ChatId,
                         string.Join('\n', questions.Take(row.Count).Select((q, i) =>
                         {
                             var answer = row[i];
                             return $"<b>{HtmlEncoder.Default.Encode(q)}</b>: {HtmlEncoder.Default.Encode(answer.ToString())}";
-                        }).Prepend($"<b>{restaurant.Name}</b>")), ParseMode.Html, cancellationToken: cancellationToken);
+                        }).Prepend($"<b>{restaurant.Name}</b>")), ParseMode.Html, cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

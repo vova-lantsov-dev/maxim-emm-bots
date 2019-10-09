@@ -26,7 +26,7 @@ namespace MaximEmmBots.Services
         {
             _logger.LogInformation("BotHandlerService started");
             
-            await _client.ReceiveAsync(_updateHandler, stoppingToken);
+            await _client.ReceiveAsync(_updateHandler, stoppingToken).ConfigureAwait(false);
         }
     }
 }

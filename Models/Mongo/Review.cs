@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -65,20 +66,20 @@ namespace MaximEmmBots.Models.Mongo
         [BsonElement("type")]
         public string ReviewType { get; set; }
 
-        public string ToString(LocalizationModel model, int maxCountOfStars, bool preferAvatarOverProfileLink)
+        public string ToString(IFormatProvider culture, LocalizationModel model, int maxCountOfStars, bool preferAvatarOverProfileLink)
         {
             var result = new StringBuilder();
 
-            result.AppendFormat(model.RestaurantAndSourceForReview, RestaurantName, Resource);
+            result.AppendFormat(culture, model.RestaurantAndSourceForReview, RestaurantName, Resource);
 
             if (ReviewType != null)
             {
                 result.Append('\n');
-                result.AppendFormat(model.TypeForReview, ReviewType);
+                result.AppendFormat(culture, model.TypeForReview, ReviewType);
             }
 
             var link = !preferAvatarOverProfileLink ? ProfileUrl ?? AuthorAvatar : AuthorAvatar ?? ProfileUrl;
-            result.AppendFormat("\n{0} <i>({1})</i>",
+            result.AppendFormat(culture, "\n{0} <i>({1})</i>",
                 string.IsNullOrWhiteSpace(link) ? AuthorName : $"<a href=\"{link}\">{AuthorName}</a>", Date);
 
             if (Rating > 0)
@@ -94,10 +95,10 @@ namespace MaximEmmBots.Models.Mongo
 
             if (Likes > 0)
             {
-                result.AppendFormat("\n{0} {1}", Likes, Dislikes <= 0 ? "❤️" : "👍");
+                result.AppendFormat(culture, "\n{0} {1}", Likes, Dislikes <= 0 ? "❤️" : "👍");
 
                 if (Dislikes > 0)
-                    result.AppendFormat("\n{0} 👎", Dislikes);
+                    result.AppendFormat(culture, "\n{0} 👎", Dislikes);
             }
 
             if (!string.IsNullOrWhiteSpace(Text))

@@ -19,6 +19,7 @@ using Context = MaximEmmBots.Services.Context;
 using ReviewBotWorkerService = MaximEmmBots.Services.ReviewBot.WorkerService;
 using StatsBotWorkerService = MaximEmmBots.Services.StatsBot.WorkerService;
 using MailBotWorkerService = MaximEmmBots.Services.MailBot.WorkerService;
+using MaximEmmBots.Services.HealthChecks;
 
 namespace MaximEmmBots.Extensions
 {
@@ -92,6 +93,11 @@ namespace MaximEmmBots.Extensions
             services.AddSingleton<IMailClient, GmailClient>();
 
             services.AddHostedService<MailBotWorkerService>();
+        }
+
+        internal static void AddHealthChecks(this IServiceCollection services)
+        {
+            services.AddSingleton<IScheduler, HealthChecksScheduler>();
         }
     }
 }

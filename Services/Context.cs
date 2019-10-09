@@ -1,3 +1,4 @@
+using MaximEmmBots.Models.HealthChecks;
 using MaximEmmBots.Models.Mongo;
 using MaximEmmBots.Options;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ namespace MaximEmmBots.Services
         internal readonly IMongoCollection<SentStat> SentStats;
         internal readonly IMongoCollection<UserRestaurantPair> UserRestaurantPairs;
         internal readonly IMongoCollection<SentChecklist> SentChecklists;
+        internal readonly IMongoCollection<HealthCheckEntry> HealthChecks;
         
         public Context(IOptions<DataOptions> options, ILogger<Context> logger)
         {
@@ -32,6 +34,7 @@ namespace MaximEmmBots.Services
             SentStats = db.GetCollection<SentStat>(nameof(SentStats));
             UserRestaurantPairs = db.GetCollection<UserRestaurantPair>(nameof(UserRestaurantPairs));
             SentChecklists = db.GetCollection<SentChecklist>(nameof(SentChecklists));
+            HealthChecks = db.GetCollection<HealthCheckEntry>("health_check");
             
             logger.LogTrace("Context initialization finished");
         }

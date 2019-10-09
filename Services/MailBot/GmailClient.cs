@@ -39,12 +39,12 @@ namespace MaximEmmBots.Services.MailBot
         {
             const string userId = "me";
 
-            var result = await _gmailService.Users.Threads.List(userId).ExecuteAsync(cancellationToken);
+            var result = await _gmailService.Users.Threads.List(userId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-            foreach (var gmailThread in result.Threads.Where(t => t.Snippet.Contains(checklistName)).Reverse())
+            foreach (var gmailThread in result.Threads.Where(t => t.Snippet.Contains(checklistName, StringComparison.Ordinal)).Reverse())
             {
                 var threadInfo = await _gmailService.Users.Threads.Get(userId, gmailThread.Id)
-                    .ExecuteAsync(cancellationToken);
+                    .ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
                 foreach (var gmailThreadMessage in threadInfo.Messages)
                 {
@@ -53,11 +53,11 @@ namespace MaximEmmBots.Services.MailBot
                         continue;
                     
                     if (await _context.SentChecklists.Find(sc => sc.MessageId == gmailThreadMessage.Id)
-                        .AnyAsync(cancellationToken))
+                        .AnyAsync(cancellationToken).ConfigureAwait(false))
                         continue;
                     
                     var messageInfo = await _gmailService.Users.Messages.Get(userId, gmailThreadMessage.Id)
-                        .ExecuteAsync(cancellationToken);
+                        .ExecuteAsync(cancellationToken).ConfigureAwait(false);
                                                                     
 
                     IEnumerable<MessagePart> GetAttachmentParts(MessagePart part)
@@ -93,17 +93,17 @@ namespace MaximEmmBots.Services.MailBot
                     foreach (var attachmentPart in attachmentParts)
                     {
                         var attachment = await _gmailService.Users.Messages.Attachments.Get(userId, messageInfo.Id,
-                            attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken);
+                            attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
                         var attachmentBytes = Convert.FromBase64String(attachment.Data.ToBase64Url());
                         var attachmentStream = new MemoryStream(attachmentBytes);
                         
-                        if (!attachmentPart.MimeType.StartsWith("image"))
+                        if (!attachmentPart.MimeType.StartsWith("image", StringComparison.Ordinal))
                         {
                             try
                             {
                                 await _botClient.SendDocumentAsync(restaurant.ChatId,
                                     new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
-                                    message, ParseMode.Markdown, cancellationToken: cancellationToken);
+                                    message, ParseMode.Markdown, cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             finally
                             {
@@ -122,7 +122,7 @@ namespace MaximEmmBots.Services.MailBot
                         try
                         {
                             await _botClient.SendPhotoAsync(restaurant.ChatId, new InputOnlineFile(content, filename),
-                                message, ParseMode.Markdown, cancellationToken: cancellationToken);
+                                message, ParseMode.Markdown, cancellationToken: cancellationToken).ConfigureAwait(false);
                         }
                         finally
                         {
@@ -137,11 +137,11 @@ namespace MaximEmmBots.Services.MailBot
                                     .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
                                         new InputMediaPhoto(new InputMedia(item.content, item.filename))
                                             {Caption = item.filename}),
-                                restaurant.ChatId, cancellationToken: cancellationToken);
+                                restaurant.ChatId, cancellationToken: cancellationToken).ConfigureAwait(false);
                         }
                         finally
                         {
-                            await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask()));
+                            await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask())).ConfigureAwait(false);
                         }
                     }
 
