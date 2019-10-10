@@ -53,7 +53,7 @@ namespace MaximEmmBots.Services.HealthChecks
                     string.Join('\n', uriItem.Tests.Select((test, ind) => $"<i>{test.Name}</i>: {test.Status}"));
                 }));
 
-                await _client.SendTextMessageAsync(-1001266023787L, sb.ToString(), ParseMode.Html, cancellationToken: cancellationToken).ConfigureAwait(false);
+                await _client.SendTextMessageAsync(-1001463899405L, sb.ToString(), ParseMode.Html, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
     }
