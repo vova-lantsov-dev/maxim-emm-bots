@@ -1,14 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 
 namespace MaximEmmBots.Models.HealthChecks
 {
+    [BsonIgnoreExtraElements]
     public sealed class HealthCheckEntry
     {
-        public ObjectId Id { get; set; }
-
         [BsonElement("name")]
         public string Name { get; set; }
 
@@ -22,6 +20,7 @@ namespace MaximEmmBots.Models.HealthChecks
         public Dictionary<string, HealthCheckUriItem> Uris { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public sealed class HealthCheckUriItem
     {
         [BsonElement("restaurant_name")]
@@ -34,9 +33,10 @@ namespace MaximEmmBots.Models.HealthChecks
         public List<HealthCheckTestItem> Tests { get; set; }
 
         [BsonElement("success_items_scraped")]
-        public int SuccessItemsScraped { get; set; }
+        public int? SuccessItemsScraped { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public sealed class HealthCheckTestItem
     {
         [BsonElement("status")]

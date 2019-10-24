@@ -71,9 +71,22 @@ namespace MaximEmmBots.Services.DistributionBot
 
             if (response?.Values == null || response.Values.Count == 0)
             {
-                if (userId > 0)
-                    await _client.SendTextMessageAsync(userId, model.TimeBoardIsNotAvailableForThisMonth,
+                try
+                {
+                    if (userId > 0)
+                        await _client.SendTextMessageAsync(userId, model.TimeBoardIsNotAvailableForThisMonth,
+                            cancellationToken: stoppingToken).ConfigureAwait(false);
+                }
+                catch
+                {
+                    await _client.SendTextMessageAsync(-1001463899405L,
+                        $"Пользователь [{userId}](tg://user?id={userId}) не начал чат с ботом или заблокировал бот.",
                         cancellationToken: stoppingToken).ConfigureAwait(false);
+                }
+                
+                await _client.SendTextMessageAsync(-1001463899405L, "Гугл таблица с расписанием недоступна.",
+                    cancellationToken: stoppingToken).ConfigureAwait(false);
+
                 return;
             }
 
@@ -134,11 +147,14 @@ namespace MaximEmmBots.Services.DistributionBot
                 try
                 {
                     await _client.SendTextMessageAsync(privateUserId, privateTextBuilder.ToString(),
-                        ParseMode.Html, cancellationToken: stoppingToken);
+                        ParseMode.Html, cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Unable to send a message to private chat");
+                    await _client.SendTextMessageAsync(-1001463899405L,
+                        $"Пользователь [{privateUserId}](tg://user?id={privateUserId}) не начал чат с ботом.",
+                        ParseMode.Markdown, cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
 
                 try
@@ -152,6 +168,8 @@ namespace MaximEmmBots.Services.DistributionBot
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Unable to save user id to UserRestaurantPairs");
+                    await _client.SendTextMessageAsync(-1001463899405L, "Произошла ошибка в боте",
+                        cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
             }
 
@@ -172,6 +190,9 @@ namespace MaximEmmBots.Services.DistributionBot
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Unable to send a message to group");
+                    await _client.SendTextMessageAsync(-1001463899405L,
+                        $"Чат {restaurant.ChatId} не доступен для ресторана {restaurant.Name}",
+                        cancellationToken: stoppingToken).ConfigureAwait(false);
                 }
             }
         }

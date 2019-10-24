@@ -28,13 +28,13 @@ namespace MaximEmmBots.Services
 
         internal CultureInfo CultureFor(Restaurant restaurant)
         {
-            _logger.LogDebug("Get culture for {0}: {1}", restaurant.ChatId, restaurant.Culture.Name);
+            //_logger.LogDebug("Get culture for {0}: {1}", restaurant.ChatId, restaurant.Culture.Name);
             return _cultures.GetOrAdd(restaurant.Culture.Name, CultureInfoInitializer).Value;
         }
 
         private TimeZoneInfo TimeZoneFor(Restaurant restaurant)
         {
-            _logger.LogDebug("Get time zone for {0}: {1}", restaurant.ChatId, restaurant.Culture.TimeZone);
+            //_logger.LogDebug("Get time zone for {0}: {1}", restaurant.ChatId, restaurant.Culture.TimeZone);
             return _timeZones.GetOrAdd(restaurant.Culture.TimeZone, TimeZoneInitializer).Value;
         }
 
@@ -46,7 +46,7 @@ namespace MaximEmmBots.Services
 
         internal LocalizationModel ModelFor(Restaurant restaurant)
         {
-            _logger.LogDebug("Get localization model for {0}", restaurant.ChatId);
+            //_logger.LogDebug("Get localization model for {0}", restaurant.ChatId);
             return _models[restaurant.Culture.Name];
         }
 

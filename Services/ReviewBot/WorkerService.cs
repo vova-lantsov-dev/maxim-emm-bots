@@ -65,6 +65,8 @@ namespace MaximEmmBots.Services.ReviewBot
             catch (Exception e) when (!(e is OperationCanceledException))
             {
                 _logger.LogError(e, "Error occurred while running worker task");
+                await _client.SendTextMessageAsync(-1001463899405L, "Ошибка в боте при получении отзывов.",
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
