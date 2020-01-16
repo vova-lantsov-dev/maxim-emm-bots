@@ -1,9 +1,9 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MaximEmmBots.Models.Mongo
+namespace MaximEmm.Data.Models
 {
     [BsonIgnoreExtraElements]
-    internal sealed class Credential
+    public sealed class Credential
     {
         [BsonElement("name")]
         public string Name { get; set; }
