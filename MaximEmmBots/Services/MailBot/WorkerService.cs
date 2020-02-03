@@ -125,6 +125,8 @@ namespace MaximEmmBots.Services.MailBot
                 entries[i] = entry;
             }
 
+            entries = entries.Where(entry => entry != null).ToArray();
+
             using var sentChecklists = new BlockingCollection<SentChecklist>();
             var tasks = new Task[entries.Length];
             for (var i = 0; i < entries.Length; i++)
