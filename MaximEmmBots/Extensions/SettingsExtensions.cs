@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MaximEmmBots.Models.Json;
@@ -18,10 +19,11 @@ namespace MaximEmmBots.Extensions
             return await JsonSerializer.DeserializeAsync<Data>(settingsFile);
         }
 
-        internal static async IAsyncEnumerable<Restaurant> YieldRestaurantsAsync()
+        internal static async IAsyncEnumerable<Restaurant> YieldRestaurantsAsync(bool isDevelopment)
         {
             var dirPath = Path.Combine(BasePath, "Restaurants");
-            foreach (var filePath in Directory.GetFiles(dirPath, "*.json", SearchOption.AllDirectories))
+            foreach (var filePath in Directory.GetFiles(dirPath, "*.json", SearchOption.AllDirectories)
+                .Where(file => file.EndsWith("Development.json") == isDevelopment))
             {
                 await using var fileWithRestaurant = File.OpenRead(filePath);
                 var restaurant = await JsonSerializer.DeserializeAsync<Restaurant>(fileWithRestaurant);

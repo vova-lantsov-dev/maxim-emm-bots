@@ -17,7 +17,7 @@ namespace MaximEmmBots
             var data = await SettingsExtensions.LoadDataAsync(environment == "Development").ConfigureAwait(false);
             
             data.Restaurants = new List<Restaurant>();
-            await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync())
+            await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync(environment == "Development"))
                 data.Restaurants.Add(restaurant);
 
             var languageModels = SettingsExtensions.YieldLanguagesAsync();

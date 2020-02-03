@@ -1,0 +1,49 @@
+{
+  "ChatId": -369047228,
+  "AdminIds": [ 336510341 ],
+  "PlaceId": "м",
+  "PlaceInfo": "на Мучном пер, д9 в Bloody Mary Bar",
+  
+  "GuestsBot": {
+    "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
+    "TableName": "Ответы на форму (1)",
+    "ColumnOfName": 3
+  },
+  
+  "StatsBot": {
+    "Schedulers": [
+      {
+        "Id": "Daily",
+        "SendAt": "07:00:00",
+        "TakeDays": 1
+      },
+      {
+        "Id": "Weekly",
+        "SendAt": "07:00:00",
+        "StartFromDayOfWeek": 1,
+        "TakeDays": 7
+      }
+    ]
+  },
+  
+  "DistributionBot": {
+    "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
+    "RunAt": "20:00:00"
+  },
+  
+  "Culture": {
+    "Name": "ru-RU",
+    "TimeZone": "Russian Standard Time"
+  },
+  
+  "Urls": {
+    "yell": "https://www.yell.ru/spb/com/bloody-mary-bar_11862123/",
+    "google": "7347993060353842189",
+    "restoclub": "https://www.restoclub.ru/spb/place/bloody-mary/opinions",
+    "foursquare": "https://ru.foursquare.com/v/bloody-mary-bar--grill/5762cd0c498e1dbf2f6f0c83",
+    "restorating": "https://www.restorating.ru/spb/catalogue/bloody-mary-bar/",
+    "tripadvisor": "https://www.tripadvisor.ru/Restaurant_Review-g298507-d10437838-Reviews-BLOODY_MARY_Bar_Grill-St_Petersburg_Northwestern_District.html",
+    "vk": "https://vk.com/bloodymarybar",
+    "instagram": "location=1111915008865121;hashtag=bloodymaryspb;mentions=3417460455"
+  }
+}
