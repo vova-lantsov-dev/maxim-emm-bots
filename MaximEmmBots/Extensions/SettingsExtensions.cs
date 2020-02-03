@@ -11,9 +11,9 @@ namespace MaximEmmBots.Extensions
     {
         private static readonly string BasePath = Directory.GetCurrentDirectory();
         
-        internal static async Task<Data> LoadDataAsync()
+        internal static async Task<Data> LoadDataAsync(bool isDevelopment)
         {
-            var settingsFilePath = Path.Combine(BasePath, "settings.json");
+            var settingsFilePath = Path.Combine(BasePath, !isDevelopment ? "settings.json" : "settings.Development.json");
             await using var settingsFile = File.OpenRead(settingsFilePath);
             return await JsonSerializer.DeserializeAsync<Data>(settingsFile);
         }

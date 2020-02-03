@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Google.Apis.Services;
 using MaximEmmBots.Extensions;
@@ -12,7 +13,8 @@ namespace MaximEmmBots
     {
         private static async Task Main()
         {
-            var data = await SettingsExtensions.LoadDataAsync().ConfigureAwait(false);
+            var environment = Environment.GetEnvironmentVariable("BOTS_ENVIRONMENT") ?? "Development";
+            var data = await SettingsExtensions.LoadDataAsync(environment == "Development").ConfigureAwait(false);
             
             data.Restaurants = new List<Restaurant>();
             await foreach (var restaurant in SettingsExtensions.YieldRestaurantsAsync())
@@ -31,7 +33,7 @@ namespace MaximEmmBots
             };
             
             await new HostBuilder()
-                .UseEnvironment(Environments.Staging)
+                .UseEnvironment(environment)
                 .ConfigureServices(serviceCollection =>
                 {
                     serviceCollection.AddGeneralServices(data);
