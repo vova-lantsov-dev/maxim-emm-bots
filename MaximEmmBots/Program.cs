@@ -13,6 +13,8 @@ namespace MaximEmmBots
     {
         private static async Task Main()
         {
+            await Task.Delay(15_000);
+            
             var environment = Environment.GetEnvironmentVariable("BOTS_ENVIRONMENT") ?? "Development";
             var data = await SettingsExtensions.LoadDataAsync(environment == "Development").ConfigureAwait(false);
             
