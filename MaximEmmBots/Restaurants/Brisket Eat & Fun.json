@@ -1,15 +1,15 @@
 {
-  "ChatId": -385117067,
-  "AdminIds": [ 336510341 ],
+  "ChatId": -1001334522143,
+  "AdminIds": [ 336510341, 7839120 ],
   "PlaceId": "ш",
   "PlaceInfo": "в Brisket Eat & Fun на Шведском пер. д2",
-  
+
   "GuestsBot": {
     "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
     "TableName": "Ответы на форму (1)",
     "ColumnOfName": 3
   },
-  
+
   "StatsBot": {
     "Schedulers": [
       {
@@ -25,17 +25,17 @@
       }
     ]
   },
-  
+
   "DistributionBot": {
     "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
     "RunAt": "20:00:00"
   },
-  
+
   "Culture": {
     "Name": "ru-RU",
     "TimeZone": "Russian Standard Time"
   },
-  
+
   "Urls": {
     "yell": "https://www.yell.ru/spb/com/brisket-eat-fun_11911251/",
     "google": "13855840546175460842",

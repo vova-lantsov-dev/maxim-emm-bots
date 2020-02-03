@@ -1,15 +1,15 @@
 {
-  "ChatId": -369047228,
-  "AdminIds": [ 336510341 ],
+  "ChatId": -1001050944593,
+  "AdminIds": [ 336510341, 7839120 ],
   "PlaceId": "м",
   "PlaceInfo": "на Мучном пер, д9 в Bloody Mary Bar",
-  
+
   "GuestsBot": {
     "SpreadsheetId": "1D2PVVltjeFvW_KlP2pkgXteoCW_BskzSwIWermffY9E",
     "TableName": "Ответы на форму (1)",
     "ColumnOfName": 3
   },
-  
+
   "StatsBot": {
     "Schedulers": [
       {
@@ -25,17 +25,17 @@
       }
     ]
   },
-  
+
   "DistributionBot": {
     "SpreadsheetId": "17a2nxnfCwg7wj-OVMbYn3QMlbfelRjaO9-kwryuvCKE",
     "RunAt": "20:00:00"
   },
-  
+
   "Culture": {
     "Name": "ru-RU",
     "TimeZone": "Russian Standard Time"
   },
-  
+
   "Urls": {
     "yell": "https://www.yell.ru/spb/com/bloody-mary-bar_11862123/",
     "google": "7347993060353842189",

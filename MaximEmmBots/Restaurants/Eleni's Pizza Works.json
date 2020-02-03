@@ -1,8 +1,8 @@
 {
-  "ChatId": -395625310,
-  "AdminIds": [ 336510341 ],
+  "ChatId": -1001162978418,
+  "AdminIds": [ 336510341, 7839120 ],
   "PlaceInfo": "Eleni's Pizza Works",
-  
+
   "StatsBot": {
     "Schedulers": [
       {
@@ -18,17 +18,17 @@
       }
     ]
   },
-  
+
   "DistributionBot": {
     "SpreadsheetId": "1GjJtk_K64jXamzA3wVISEYUiSdsinzhVthWEg7FKx9k",
     "RunAt": "20:00:00"
   },
-  
+
   "Culture": {
     "Name": "en-US",
     "TimeZone": "Eastern Standard Time"
   },
-  
+
   "Urls": {
     "tripadvisor": "https://www.tripadvisor.com/Restaurant_Review-g34618-d4254925-Reviews-Eleni_s_Pizza_Works-Sarasota_Florida.html",
     "google": "4503960160230426952",
