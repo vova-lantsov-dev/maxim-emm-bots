@@ -5,7 +5,7 @@ using MaximEmm.Shared.StatsBot;
 
 namespace MaximEmm.Shared
 {
-    public sealed class Restaurant
+    internal sealed class Restaurant
     {
         public string Name { get; set; }
 
