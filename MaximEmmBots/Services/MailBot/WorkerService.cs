@@ -64,6 +64,9 @@ namespace MaximEmmBots.Services.MailBot
                 if (row.Count < 11)
                     continue;
                 
+                if (string.IsNullOrWhiteSpace(row[0].ToString()))
+                    continue;
+                
                 var entry = new ChecklistWatchdogEntry
                 {
                     ChecklistName = row[1].ToString(),

@@ -82,66 +82,73 @@ namespace MaximEmmBots.Services.MailBot
                         }
                     }
 
-                    var attachmentParts = GetAttachmentParts(messageInfo.Payload);
+                    var attachmentParts = GetAttachmentParts(messageInfo.Payload)?.ToArray();
                     if (attachmentParts == null)
                         continue;
 
-                    var photos = new List<(MemoryStream content, string filename)>();
-                    var date = messageInfo.Payload.Headers.FirstOrDefault(h => h.Name == "X-Google-Original-Date");
-                    var message = $"*{nofityMessage}\n{date?.Value}*";
-                    
-                    foreach (var attachmentPart in attachmentParts)
+                    if (attachmentParts.Length > 0)
                     {
-                        var attachment = await _gmailService.Users.Messages.Attachments.Get(userId, messageInfo.Id,
-                            attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                        var attachmentBytes = Convert.FromBase64String(attachment.Data.ToBase64Url());
-                        var attachmentStream = new MemoryStream(attachmentBytes);
-                        
-                        if (!attachmentPart.MimeType.StartsWith("image", StringComparison.Ordinal))
+                        var photos = new List<(MemoryStream content, string filename)>(attachmentParts.Length);
+                        var date = messageInfo.Payload.Headers.FirstOrDefault(h => h.Name == "X-Google-Original-Date");
+                        var message = $"*{nofityMessage}\n{date?.Value}*";
+
+                        foreach (var attachmentPart in attachmentParts)
                         {
+                            var attachment = await _gmailService.Users.Messages.Attachments.Get(userId, messageInfo.Id,
+                                attachmentPart.Body.AttachmentId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                            var attachmentBytes = Convert.FromBase64String(attachment.Data.ToBase64Url());
+                            var attachmentStream = new MemoryStream(attachmentBytes);
+
+                            if (!attachmentPart.MimeType?.StartsWith("image", StringComparison.Ordinal) == true)
+                            {
+                                try
+                                {
+                                    await _botClient.SendDocumentAsync(restaurant.ChatId,
+                                            new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
+                                            message, ParseMode.Markdown, cancellationToken: cancellationToken)
+                                        .ConfigureAwait(false);
+                                }
+                                finally
+                                {
+                                    await attachmentStream.DisposeAsync();
+                                }
+                            }
+                            else
+                            {
+                                photos.Add((attachmentStream, attachmentPart.Filename));
+                            }
+                        }
+
+                        if (photos.Count == 1)
+                        {
+                            var (content, filename) = photos[0];
                             try
                             {
-                                await _botClient.SendDocumentAsync(restaurant.ChatId,
-                                    new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
-                                    message, ParseMode.Markdown, cancellationToken: cancellationToken).ConfigureAwait(false);
+                                await _botClient.SendPhotoAsync(restaurant.ChatId,
+                                        new InputOnlineFile(content, filename),
+                                        message, ParseMode.Markdown, cancellationToken: cancellationToken)
+                                    .ConfigureAwait(false);
                             }
                             finally
                             {
-                                await attachmentStream.DisposeAsync();
+                                await content.DisposeAsync();
                             }
                         }
                         else
                         {
-                            photos.Add((attachmentStream, attachmentPart.Filename));
-                        }
-                    }
-
-                    if (photos.Count == 1)
-                    {
-                        var (content, filename) = photos[0];
-                        try
-                        {
-                            await _botClient.SendPhotoAsync(restaurant.ChatId, new InputOnlineFile(content, filename),
-                                message, ParseMode.Markdown, cancellationToken: cancellationToken).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            await content.DisposeAsync();
-                        }
-                    }
-                    else if (photos.Count != 0)
-                    {
-                        try
-                        {
-                            await _botClient.SendMediaGroupAsync(photos
-                                    .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
-                                        new InputMediaPhoto(new InputMedia(item.content, item.filename))
-                                            {Caption = item.filename}),
-                                restaurant.ChatId, cancellationToken: cancellationToken).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask())).ConfigureAwait(false);
+                            try
+                            {
+                                await _botClient.SendMediaGroupAsync(photos
+                                        .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
+                                            new InputMediaPhoto(new InputMedia(item.content, item.filename))
+                                                {Caption = item.filename}),
+                                    restaurant.ChatId, cancellationToken: cancellationToken).ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                await Task.WhenAll(photos.Select(photo => photo.content.DisposeAsync().AsTask()))
+                                    .ConfigureAwait(false);
+                            }
                         }
                     }
 
