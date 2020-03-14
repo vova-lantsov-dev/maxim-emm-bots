@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using MaximEmmBots.Extensions;
-using MaximEmmBots.Models.Json.Restaurants;
 using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -34,7 +33,7 @@ namespace MaximEmmBots.Services.MailBot
             _context = context;
         }
 
-        public async IAsyncEnumerable<string> ExecuteForRestaurantAsync(Restaurant restaurant,
+        public async IAsyncEnumerable<string> ExecuteForRestaurantAsync(long chatId,
             string checklistName, string nofityMessage, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             const string userId = "me";
@@ -103,7 +102,7 @@ namespace MaximEmmBots.Services.MailBot
                             {
                                 try
                                 {
-                                    await _botClient.SendDocumentAsync(restaurant.ChatId,
+                                    await _botClient.SendDocumentAsync(chatId,
                                             new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
                                             message, ParseMode.Markdown, cancellationToken: cancellationToken)
                                         .ConfigureAwait(false);
@@ -124,7 +123,7 @@ namespace MaximEmmBots.Services.MailBot
                             var (content, filename) = photos[0];
                             try
                             {
-                                await _botClient.SendPhotoAsync(restaurant.ChatId,
+                                await _botClient.SendPhotoAsync(chatId,
                                         new InputOnlineFile(content, filename),
                                         message, ParseMode.Markdown, cancellationToken: cancellationToken)
                                     .ConfigureAwait(false);
@@ -142,7 +141,7 @@ namespace MaximEmmBots.Services.MailBot
                                         .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
                                             new InputMediaPhoto(new InputMedia(item.content, item.filename))
                                                 {Caption = item.filename}),
-                                    restaurant.ChatId, cancellationToken: cancellationToken).ConfigureAwait(false);
+                                    chatId, cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             finally
                             {

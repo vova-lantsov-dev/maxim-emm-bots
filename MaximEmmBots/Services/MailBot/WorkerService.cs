@@ -61,7 +61,7 @@ namespace MaximEmmBots.Services.MailBot
             for (var i = 0; i < entries.Length; i++)
             {
                 var row = rows[i + 1];
-                if (row.Count < 11)
+                if (row.Count < 12)
                     continue;
                 
                 if (string.IsNullOrWhiteSpace(row[0].ToString()))
@@ -124,6 +124,7 @@ namespace MaximEmmBots.Services.MailBot
                 long.TryParse(row[6].ToString().AsSpan(), out entry.PublishChatId);
                 long.TryParse(row[7].ToString().AsSpan(), out entry.NotifyFoundChatId);
                 long.TryParse(row[9].ToString().AsSpan(), out entry.NotifyNotFoundChatId);
+                long.TryParse(row[11].ToString().AsSpan(), out entry.RestaurantChatId);
 
                 entries[i] = entry;
             }
@@ -151,7 +152,7 @@ namespace MaximEmmBots.Services.MailBot
         private async Task RunChecklistWatchdogForEntryAsync(ChecklistWatchdogEntry entry,
             BlockingCollection<SentChecklist> sentChecklists, CancellationToken cancellationToken)
         {
-            var restaurant = _data.Restaurants.Find(r => r.ChatId == entry.PublishChatId) ?? _data.Restaurants[0];
+            var restaurant = _data.Restaurants.Find(r => r.ChatId == entry.RestaurantChatId);
             if (restaurant == null)
                 return;
 
@@ -196,8 +197,8 @@ namespace MaximEmmBots.Services.MailBot
                 try
                 {
                     var totalAttachmentsFound = 0;
-                    await foreach (var messageId in _mailClient.ExecuteForRestaurantAsync(restaurant, entry.ChecklistName,
-                        entry.ChecklistMessage, cancellationToken))
+                    await foreach (var messageId in _mailClient.ExecuteForRestaurantAsync(entry.PublishChatId,
+                        entry.ChecklistName, entry.ChecklistMessage, cancellationToken))
                     {
                         var sentChecklist = new SentChecklist
                         {
@@ -237,6 +238,7 @@ namespace MaximEmmBots.Services.MailBot
             public TimeSpan SendAt;
             public int[] PublishDaysOfWeek;
             public Range[] PublishDays;
+            public long RestaurantChatId;
             public long PublishChatId;
             public long NotifyFoundChatId;
             public string NotifyFoundMessage;
