@@ -18,5 +18,7 @@ namespace MaximEmmBots.Models.Json
         public ReviewBotData ReviewBot { get; set; }
         
         public MailBotData MailBot { get; set; }
+        
+        public List<int> WithRestartAccess { get; set; }
     }
 }
