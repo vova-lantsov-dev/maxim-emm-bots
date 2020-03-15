@@ -5,6 +5,8 @@ using Google.Apis.Services;
 using MaximEmmBots.Extensions;
 using MaximEmmBots.Models.Json;
 using MaximEmmBots.Models.Json.Restaurants;
+using MaximEmmBots.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace MaximEmmBots
@@ -13,8 +15,6 @@ namespace MaximEmmBots
     {
         private static async Task Main()
         {
-            await Task.Delay(15_000);
-            
             var environment = Environment.GetEnvironmentVariable("BOTS_ENVIRONMENT") ?? "Development";
             var data = await SettingsExtensions.LoadDataAsync(environment == "Development").ConfigureAwait(false);
             
@@ -51,6 +51,8 @@ namespace MaximEmmBots
                     serviceCollection.AddLocalizationServices(languageDictionary);
 
                     serviceCollection.AddHealthChecks();
+
+                    serviceCollection.AddHostedService<RestartNotificationService>();
                 })
                 .ConfigureLogging(LoggingExtensions.Configure)
                 .RunConsoleAsync().ConfigureAwait(false);
