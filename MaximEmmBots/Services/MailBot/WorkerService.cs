@@ -213,14 +213,35 @@ namespace MaximEmmBots.Services.MailBot
                     if (totalAttachmentsFound == 0)
                     {
                         if (entry.NotifyNotFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyNotFoundMessage))
-                            await _client.SendTextMessageAsync(entry.NotifyNotFoundChatId, entry.NotifyNotFoundMessage,
-                                disableWebPagePreview: true, cancellationToken: cancellationToken).ConfigureAwait(false);
+                        {
+                            try
+                            {
+                                await _client.SendTextMessageAsync(entry.NotifyNotFoundChatId,
+                                        entry.NotifyNotFoundMessage,
+                                        disableWebPagePreview: true, cancellationToken: cancellationToken)
+                                    .ConfigureAwait(false);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
                     }
                     else
                     {
                         if (entry.NotifyFoundChatId != 0L && !string.IsNullOrWhiteSpace(entry.NotifyFoundMessage))
-                            await _client.SendTextMessageAsync(entry.NotifyFoundChatId, entry.NotifyFoundMessage,
-                                disableWebPagePreview: true, cancellationToken: cancellationToken).ConfigureAwait(false);
+                        {
+                            try
+                            {
+                                await _client.SendTextMessageAsync(entry.NotifyFoundChatId, entry.NotifyFoundMessage,
+                                        disableWebPagePreview: true, cancellationToken: cancellationToken)
+                                    .ConfigureAwait(false);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
                     }
                 }
                 catch (Exception e)

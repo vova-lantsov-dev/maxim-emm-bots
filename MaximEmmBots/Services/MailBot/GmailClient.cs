@@ -57,16 +57,16 @@ namespace MaximEmmBots.Services.MailBot
                     
                     var messageInfo = await _gmailService.Users.Messages.Get(userId, gmailThreadMessage.Id)
                         .ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                                                                    
 
-                    IEnumerable<MessagePart> GetAttachmentParts(MessagePart part)
+
+                    static IEnumerable<MessagePart> GetAttachmentParts(MessagePart part)
                     {
                         if (part.Parts == null)
                             yield break;
 
                         foreach (var innerPart in part.Parts)
                         {
-                            if (innerPart.Body.AttachmentId == null)
+                            if (innerPart.Body.AttachmentId == null || innerPart.MimeType == null)
                                 continue;
 
                             yield return innerPart;
@@ -98,7 +98,7 @@ namespace MaximEmmBots.Services.MailBot
                             var attachmentBytes = Convert.FromBase64String(attachment.Data.ToBase64Url());
                             var attachmentStream = new MemoryStream(attachmentBytes);
 
-                            if (!attachmentPart.MimeType?.StartsWith("image", StringComparison.Ordinal) == true)
+                            if (!attachmentPart.MimeType.StartsWith("image", StringComparison.Ordinal))
                             {
                                 try
                                 {
@@ -106,6 +106,10 @@ namespace MaximEmmBots.Services.MailBot
                                             new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
                                             message, ParseMode.Markdown, cancellationToken: cancellationToken)
                                         .ConfigureAwait(false);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
                                 }
                                 finally
                                 {
@@ -128,6 +132,10 @@ namespace MaximEmmBots.Services.MailBot
                                         message, ParseMode.Markdown, cancellationToken: cancellationToken)
                                     .ConfigureAwait(false);
                             }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
                             finally
                             {
                                 await content.DisposeAsync();
@@ -142,6 +150,10 @@ namespace MaximEmmBots.Services.MailBot
                                             new InputMediaPhoto(new InputMedia(item.content, item.filename))
                                                 {Caption = item.filename}),
                                     chatId, cancellationToken: cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
                             }
                             finally
                             {
