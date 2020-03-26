@@ -11,19 +11,7 @@
   },
 
   "StatsBot": {
-    "Schedulers": [
-      {
-        "Id": "Daily",
-        "SendAt": "07:00:00",
-        "TakeDays": 1
-      },
-      {
-        "Id": "Weekly",
-        "SendAt": "07:00:00",
-        "StartFromDayOfWeek": 1,
-        "TakeDays": 7
-      }
-    ]
+    "Schedulers": []
   },
 
   "DistributionBot": {
