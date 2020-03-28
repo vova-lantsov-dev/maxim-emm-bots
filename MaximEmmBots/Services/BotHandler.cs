@@ -90,9 +90,16 @@ namespace MaximEmmBots.Services
                             }
 
                             await _client.EditMessageTextAsync(restaurant.ChatId, q.Message.MessageId,
-                                string.Concat(review, "\n\n", model.Comments, "\n\n",
-                                    string.Join("\n\n", review.Comments)),
-                                ParseMode.Markdown, replyMarkup: !review.IsReadOnly && review.ReplyLink != null
+                                string.Concat(review.ToString(
+                                        _cultureService.CultureFor(restaurant),
+                                        _cultureService.ModelFor(restaurant),
+                                        _data.ReviewBot.MaxValuesOfRating.TryGetValue(review.Resource,
+                                            out var maxValueOfRating)
+                                            ? maxValueOfRating
+                                            : -1,
+                                        _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(review.Resource)),
+                                    "\n\n", model.Comments, "\n\n", string.Join("\n\n", review.Comments)),
+                                ParseMode.Html, replyMarkup: !review.IsReadOnly && review.ReplyLink != null
                                     ? new InlineKeyboardButton {Text = model.OpenReview, Url = review.ReplyLink}
                                     : null, cancellationToken: cancellationToken).ConfigureAwait(false);
 
