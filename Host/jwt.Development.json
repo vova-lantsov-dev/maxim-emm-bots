@@ -1,0 +1,7 @@
+﻿{
+    "Jwt": {
+        "Issuer": "issuer",
+        "Audience": "audience",
+        "SecretKey": "secret_key_12345"
+    }
+}
