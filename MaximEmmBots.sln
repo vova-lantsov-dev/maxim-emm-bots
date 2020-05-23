@@ -13,6 +13,83 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Abstractions", "Bots\Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", "{E27052D7-A5FC-45D0-851E-49030FE298FE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{06CF43D0-34A2-41B2-862C-E277EB8F9D34}"
+ProjectSection(SolutionItems) = preProject
+	docker-compose.yml = docker-compose.yml
+	Host\Dockerfile = Host\Dockerfile
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cron", "Cron", "{0DCF2C92-F9DA-4703-99C1-441B08134D92}"
+ProjectSection(SolutionItems) = preProject
+	cron\Dockerfile = cron\Dockerfile
+	cron\entrypoint.sh = cron\entrypoint.sh
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{FF3000A6-B87B-4DE9-AB6C-21FECE3EF451}"
+ProjectSection(SolutionItems) = preProject
+	.env = .env
+	.gitignore = .gitignore
+	LICENSE = LICENSE
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Relay", "Relay", "{45E743F4-A8FA-4DD6-B9E2-E27A7ED88416}"
+ProjectSection(SolutionItems) = preProject
+	relay\config.yml = relay\config.yml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sentry", "Sentry", "{C9A84D54-70CE-4B77-AA2D-2505575E2362}"
+ProjectSection(SolutionItems) = preProject
+	sentry\.dockerignore = sentry\.dockerignore
+	sentry\config.example.yml = sentry\config.example.yml
+	sentry\Dockerfile = sentry\Dockerfile
+	sentry\requirements.example.txt = sentry\requirements.example.txt
+	sentry\sentry.conf.example.py = sentry\sentry.conf.example.py
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Crawlers", "Crawlers", "{792F7D24-C79A-4C93-B860-CF397DE41C41}"
+ProjectSection(SolutionItems) = preProject
+	crawlers\.git = crawlers\.git
+	crawlers\.gitignore = crawlers\.gitignore
+	crawlers\docker-compose.yml = crawlers\docker-compose.yml
+	crawlers\Dockerfile = crawlers\Dockerfile
+	crawlers\Pipfile = crawlers\Pipfile
+	crawlers\Pipfile.lock = crawlers\Pipfile.lock
+	crawlers\requirements.txt = crawlers\requirements.txt
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviewbot", "reviewbot", "{241E4355-D418-4220-AF51-C454C2ED402E}"
+ProjectSection(SolutionItems) = preProject
+	crawlers\reviewbot\__init__.py = crawlers\reviewbot\__init__.py
+	crawlers\reviewbot\scrapy.cfg = crawlers\reviewbot\scrapy.cfg
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reviewbot", "reviewbot", "{918317D7-8427-4D96-A386-57AFFBA62497}"
+ProjectSection(SolutionItems) = preProject
+	crawlers\reviewbot\reviewbot\__init__.py = crawlers\reviewbot\reviewbot\__init__.py
+	crawlers\reviewbot\reviewbot\http.py = crawlers\reviewbot\reviewbot\http.py
+	crawlers\reviewbot\reviewbot\items.py = crawlers\reviewbot\reviewbot\items.py
+	crawlers\reviewbot\reviewbot\middlewares.py = crawlers\reviewbot\reviewbot\middlewares.py
+	crawlers\reviewbot\reviewbot\monitors.py = crawlers\reviewbot\reviewbot\monitors.py
+	crawlers\reviewbot\reviewbot\pipelines.py = crawlers\reviewbot\reviewbot\pipelines.py
+	crawlers\reviewbot\reviewbot\settings.py = crawlers\reviewbot\reviewbot\settings.py
+	crawlers\reviewbot\reviewbot\validators.py = crawlers\reviewbot\reviewbot\validators.py
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spiders", "spiders", "{E497C2B4-7777-403E-8314-9FEF5179D2FA}"
+ProjectSection(SolutionItems) = preProject
+	crawlers\reviewbot\reviewbot\spiders\__init__.py = crawlers\reviewbot\reviewbot\spiders\__init__.py
+	crawlers\reviewbot\reviewbot\spiders\foursquare.py = crawlers\reviewbot\reviewbot\spiders\foursquare.py
+	crawlers\reviewbot\reviewbot\spiders\google.py = crawlers\reviewbot\reviewbot\spiders\google.py
+	crawlers\reviewbot\reviewbot\spiders\instagram.py = crawlers\reviewbot\reviewbot\spiders\instagram.py
+	crawlers\reviewbot\reviewbot\spiders\restoclub.py = crawlers\reviewbot\reviewbot\spiders\restoclub.py
+	crawlers\reviewbot\reviewbot\spiders\restorating.py = crawlers\reviewbot\reviewbot\spiders\restorating.py
+	crawlers\reviewbot\reviewbot\spiders\review.py = crawlers\reviewbot\reviewbot\spiders\review.py
+	crawlers\reviewbot\reviewbot\spiders\tripadvisor.py = crawlers\reviewbot\reviewbot\spiders\tripadvisor.py
+	crawlers\reviewbot\reviewbot\spiders\vk.py = crawlers\reviewbot\reviewbot\spiders\vk.py
+	crawlers\reviewbot\reviewbot\spiders\yell.py = crawlers\reviewbot\reviewbot\spiders\yell.py
+	crawlers\reviewbot\reviewbot\spiders\yelp.py = crawlers\reviewbot\reviewbot\spiders\yelp.py
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +119,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6BB7282D-EC41-4A4E-AA5D-6A7C5EC88DA0} = {AC096050-90E3-4B42-B9F4-7BB03DC81DEB}
 		{5CE13BF6-35D2-4711-8027-9E5133FACEEB} = {AC096050-90E3-4B42-B9F4-7BB03DC81DEB}
+		{241E4355-D418-4220-AF51-C454C2ED402E} = {792F7D24-C79A-4C93-B860-CF397DE41C41}
+		{918317D7-8427-4D96-A386-57AFFBA62497} = {241E4355-D418-4220-AF51-C454C2ED402E}
+		{E497C2B4-7777-403E-8314-9FEF5179D2FA} = {918317D7-8427-4D96-A386-57AFFBA62497}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0ADAA46-4B54-4C70-B6FD-D2897BDEEDD0}

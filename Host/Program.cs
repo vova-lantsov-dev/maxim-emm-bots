@@ -15,7 +15,7 @@ namespace Host
             await host.RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder() =>
+        private static IHostBuilder CreateHostBuilder() =>
             _Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((context, builder) =>
                 {

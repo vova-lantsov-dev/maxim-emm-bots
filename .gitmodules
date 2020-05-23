@@ -1,0 +1,3 @@
+[submodule "crawlers"]
+	path = crawlers
+	url = git@laptop:Kroze/reviewbot.git

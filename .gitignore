@@ -1,7 +1,14 @@
 bin/
+
 obj/
+
 Properties/
+
 .idea/
+
 .vs/
+
 .vscode/
+
 *.user
+settings.*

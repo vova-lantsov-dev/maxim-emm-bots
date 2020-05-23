@@ -14,17 +14,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Dockerfile" />
+      
       <Content Update="jwt.Development.json">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Pages\_Host.cshtml">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Pages\Index.razor">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
       <Content Update="wwwroot\css\main.css">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
