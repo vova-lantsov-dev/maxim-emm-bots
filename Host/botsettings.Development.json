@@ -1,0 +1,7 @@
+﻿{
+  "Bot": {
+    "Username": "@BotTestingPlatform_bot",
+    "GroupReloadCommand": "/reload",
+    "PrivateReloadCommand": "/work"
+  }
+}

@@ -1,0 +1,5 @@
+﻿{
+  "Mongo": {
+    "ConnectionString": "mongodb://mongodb:27017"
+  }
+}

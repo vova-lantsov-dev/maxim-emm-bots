@@ -14,8 +14,6 @@ RUN dotnet publish Host.csproj -c Release -o /app
 
 FROM maxim_emm_bots/scrapy:latest AS crawlers
 COPY ./crawlers /app
-# WORKDIR /app
-# CMD ["ash"]
 
 FROM base AS final
 WORKDIR /crawlers

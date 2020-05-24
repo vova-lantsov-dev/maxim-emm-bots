@@ -1,0 +1,19 @@
+﻿{
+  "ReviewBot": {
+    "Script": {
+      "WorkingDirectory": "/",
+      "Arguments": "crawl {0} -a uri=\"{1}\" -a restaurant_name=\"{2}\" -a use_proxy=\"1\"",
+      "InstagramArguments": "crawl {0} -a type=\"{1}\" -a uri=\"{2}\" -a restaurant_name=\"{3}\" -a use_proxy=\"1\"",
+      "FileName": "scrapy"
+    },
+    "MaxValuesOfRating": {
+      "yell": 5,
+      "restoclub": 10,
+      "restorating": 10,
+      "google": 5,
+      "tripadvisor": 5,
+      "yelp": 5
+    },
+    "PreferAvatarOverProfileLinkFor": [ "yell", "tripadvisor" ]
+  }
+}
