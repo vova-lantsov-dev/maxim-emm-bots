@@ -1,0 +1,12 @@
+﻿{
+  "Sentry": {
+    "Dsn": "http://f06e294133aa439da45b073347479c1c@127.0.0.1:9000/2",
+    "IncludeRequestPayload": true,
+    "SendDefaultPii": true,
+    "MinimumBreadcrumbLevel": "Debug",
+    "MinimumEventLevel": "Warning",
+    "AttachStackTrace": true,
+    "Debug": true,
+    "DiagnosticsLevel": "Error"
+  }
+}

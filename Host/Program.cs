@@ -22,6 +22,8 @@ namespace Host
                     var env = context.HostingEnvironment.EnvironmentName;
                     builder.AddJsonFile("jwt.json", true, true)
                         .AddJsonFile($"jwt.{env}.json", true, true);
+                    builder.AddJsonFile("sentry.json", true, true)
+                        .AddJsonFile($"sentry.{env}.json", true, true);
                 })
                 .ConfigureLogging((context, builder) =>
                 {

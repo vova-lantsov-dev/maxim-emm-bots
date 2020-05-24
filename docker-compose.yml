@@ -49,7 +49,7 @@ x-snuba-defaults: &snuba_defaults
 
 x-host-config: &host_config
   environment:
-    - ASPNETCORE_ENVIRONMENT=Production
+    - ASPNETCORE_ENVIRONMENT=Development
     - ASPNETCORE_URLS=http://+:80
   ports:
     - "5050:80"
