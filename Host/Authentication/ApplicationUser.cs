@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Host.Authentication
 {
+    [Table("users", Schema = "public")]
     public sealed class ApplicationUser
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Required, Column("user_id", TypeName = "integer")]

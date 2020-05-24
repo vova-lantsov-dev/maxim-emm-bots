@@ -6,6 +6,7 @@ using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using Host.Authentication;
 using Host.Filters;
+using Host.Options;
 using Host.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Host
@@ -22,16 +24,21 @@ namespace Host
     {
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
+        private readonly JwtOptions _jwtOptions;
 
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment,
+            IOptions<JwtOptions> jwtOptions)
         {
             _configuration = configuration;
             _environment = environment;
+            _jwtOptions = jwtOptions.Value;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.Configure<JwtOptions>(_configuration.GetSection("Jwt"));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -44,9 +51,9 @@ namespace Host
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = _configuration["Jwt:Issuer"],
-                        ValidAudience = _configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"])),
+                        ValidIssuer = _jwtOptions.Issuer,
+                        ValidAudience = _jwtOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.SecretKey)),
                         ClockSkew = TimeSpan.Zero
                     };
                     options.Events = new JwtBearerEvents
@@ -59,13 +66,17 @@ namespace Host
                     };
                     options.Validate();
                 });
+            
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(Roles.Admin, Roles.AdminPolicy());
                 options.AddPolicy(Roles.ReadOnly, Roles.ReadOnlyPolicy());
             });
 
-            services.AddSingleton<IAuthService, LocalAuthService>();
+            if (_environment.IsDevelopment())
+                services.AddSingleton<IAuthService, LocalAuthService>();
+            else
+                services.AddScoped<IAuthService, DatabaseBasedAuthService>();
 
             services.AddDbContext<AuthDbContext>(options =>
                 options.UseNpgsql(_configuration.GetConnectionString("AuthConnectionString")));
@@ -91,6 +102,17 @@ namespace Host
 
             app.UseRouting();
             app.UseAuthentication();
+
+            app.UseStatusCodePages(context =>
+            {
+                var response = context.HttpContext.Response;
+                if (response.StatusCode == 401)
+                {
+                    response.Redirect("/auth");
+                }
+
+                return Task.CompletedTask;
+            });
             
             app.UseHangfireDashboard(options: new DashboardOptions
             {

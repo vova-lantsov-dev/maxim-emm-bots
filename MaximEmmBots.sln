@@ -30,6 +30,7 @@ ProjectSection(SolutionItems) = preProject
 	.env = .env
 	.gitignore = .gitignore
 	LICENSE = LICENSE
+	init.sql = init.sql
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Relay", "Relay", "{45E743F4-A8FA-4DD6-B9E2-E27A7ED88416}"
