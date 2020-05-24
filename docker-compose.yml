@@ -47,28 +47,38 @@ x-snuba-defaults: &snuba_defaults
   networks:
     - host_network
 
-x-host-defaults: &host_defaults
-  << : *restart_policy
-  depends_on:
-    - postgres
-    - web
+x-host-config: &host_config
   environment:
     - ASPNETCORE_ENVIRONMENT=Production
     - ASPNETCORE_URLS=http://+:80
-  networks:
-    - host_network
-    - reviewbot
   ports:
     - "5050:80"
 
 services:
   host:
-    << : *host_defaults
+    << : *restart_policy
+    << : *host_config
+    depends_on:
+      - postgres
+      - worker
+      - mongodb
+      - proxy
+      - selenium
+      - scrapy
     container_name: maxim_emm_bots_host
-    image: ${DOCKER_REGISTRY-}maxim_emm_bots/host:latest
+    image: maxim_emm_bots/host:latest
     build:
       context: .
       dockerfile: Host/Dockerfile
+    networks:
+      - host_network
+      - reviewbot
+  
+  scrapy:
+    build:
+      context: .
+      dockerfile: scrapy/Dockerfile
+    image: maxim_emm_bots/scrapy:latest
 
   postgres:
     << : *restart_policy

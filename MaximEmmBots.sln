@@ -90,6 +90,11 @@ ProjectSection(SolutionItems) = preProject
 	crawlers\reviewbot\reviewbot\spiders\yelp.py = crawlers\reviewbot\reviewbot\spiders\yelp.py
 EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scrapy", "Scrapy", "{A1FD2B15-8F21-4CA5-A827-0FE969B3B89F}"
+ProjectSection(SolutionItems) = preProject
+	scrapy\Dockerfile = scrapy\Dockerfile
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +129,7 @@ Global
 		{E497C2B4-7777-403E-8314-9FEF5179D2FA} = {918317D7-8427-4D96-A386-57AFFBA62497}
 		{45E743F4-A8FA-4DD6-B9E2-E27A7ED88416} = {C9A84D54-70CE-4B77-AA2D-2505575E2362}
 		{0DCF2C92-F9DA-4703-99C1-441B08134D92} = {C9A84D54-70CE-4B77-AA2D-2505575E2362}
+		{A1FD2B15-8F21-4CA5-A827-0FE969B3B89F} = {06CF43D0-34A2-41B2-862C-E277EB8F9D34}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0ADAA46-4B54-4C70-B6FD-D2897BDEEDD0}
