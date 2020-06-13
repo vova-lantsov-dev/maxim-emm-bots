@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Apis.Sheets.v4" Version="1.45.0.1965" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.4" />
+    </ItemGroup>
+
+</Project>

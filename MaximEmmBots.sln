@@ -96,6 +96,8 @@ ProjectSection(SolutionItems) = preProject
 	scrapy\Dockerfile = scrapy\Dockerfile
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot.Spreadsheets", "Bots\Bot.Spreadsheets\Bot.Spreadsheets.csproj", "{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{E27052D7-A5FC-45D0-851E-49030FE298FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E27052D7-A5FC-45D0-851E-49030FE298FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E27052D7-A5FC-45D0-851E-49030FE298FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -131,6 +137,7 @@ Global
 		{45E743F4-A8FA-4DD6-B9E2-E27A7ED88416} = {C9A84D54-70CE-4B77-AA2D-2505575E2362}
 		{0DCF2C92-F9DA-4703-99C1-441B08134D92} = {C9A84D54-70CE-4B77-AA2D-2505575E2362}
 		{A1FD2B15-8F21-4CA5-A827-0FE969B3B89F} = {06CF43D0-34A2-41B2-862C-E277EB8F9D34}
+		{BC3FE7D9-E673-4CE8-A10E-D8B828EDDD13} = {AC096050-90E3-4B42-B9F4-7BB03DC81DEB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0ADAA46-4B54-4C70-B6FD-D2897BDEEDD0}
