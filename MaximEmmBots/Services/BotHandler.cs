@@ -25,7 +25,6 @@ namespace MaximEmmBots.Services
 {
     internal sealed class BotHandler : IUpdateHandler
     {
-        private readonly ITelegramBotClient _client;
         private readonly Data _data;
         private readonly Context _context;
         private readonly ILogger<BotHandler> _logger;
@@ -35,7 +34,6 @@ namespace MaximEmmBots.Services
         private readonly IHostApplicationLifetime _lifetime;
 
         public BotHandler(ILogger<BotHandler> logger,
-            ITelegramBotClient client,
             IOptions<DataOptions> dataOptions,
             Context context,
             HttpClient httpClient,
@@ -44,7 +42,6 @@ namespace MaximEmmBots.Services
             IHostApplicationLifetime lifetime)
         {
             _logger = logger;
-            _client = client;
             _data = dataOptions.Value.Data;
             _context = context;
             _httpClient = httpClient;
@@ -53,7 +50,7 @@ namespace MaximEmmBots.Services
             _lifetime = lifetime;
         }
 
-        public async Task HandleUpdate(Update update, CancellationToken cancellationToken)
+        public async Task HandleUpdate(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
         {
             switch (update.Type)
             {
@@ -89,7 +86,7 @@ namespace MaximEmmBots.Services
                                 break;
                             }
 
-                            await _client.EditMessageTextAsync(restaurant.ChatId, q.Message.MessageId,
+                            await client.EditMessageTextAsync(restaurant.ChatId, q.Message.MessageId,
                                 string.Concat(review.ToString(
                                         _cultureService.CultureFor(restaurant),
                                         _cultureService.ModelFor(restaurant),
@@ -115,7 +112,7 @@ namespace MaximEmmBots.Services
                         }
                     }
 
-                    await _client.AnswerCallbackQueryAsync(update.CallbackQuery.Id,
+                    await client.AnswerCallbackQueryAsync(update.CallbackQuery.Id,
                         cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     break;
@@ -127,7 +124,7 @@ namespace MaximEmmBots.Services
                 {
                     try
                     {
-                        await _client.DeleteMessageAsync(update.Message.Chat, update.Message.MessageId,
+                        await client.DeleteMessageAsync(update.Message.Chat, update.Message.MessageId,
                             cancellationToken);
                     }
                     catch
@@ -188,7 +185,7 @@ namespace MaximEmmBots.Services
                         httpRequest.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                         await _httpClient.SendAsync(httpRequest, cancellationToken).ConfigureAwait(false);
 
-                        await _client.SendTextMessageAsync(m.Chat, model.ResponseToReviewSent,
+                        await client.SendTextMessageAsync(m.Chat, model.ResponseToReviewSent,
                             replyToMessageId: m.MessageId, cancellationToken: cancellationToken).ConfigureAwait(false);
                     }
                     else if (restaurant != default &&
@@ -257,7 +254,7 @@ namespace MaximEmmBots.Services
                         {
                             var text = string.Format(culture, model.NewMemberInGroup, member.FirstName, member.Id,
                                 _data.Bot.Username);
-                            await _client.SendTextMessageAsync(m.Chat, text, ParseMode.Html,
+                            await client.SendTextMessageAsync(m.Chat, text, ParseMode.Html,
                                 cancellationToken: cancellationToken).ConfigureAwait(false);
                         }
                         catch (Exception e)
@@ -271,7 +268,7 @@ namespace MaximEmmBots.Services
                         {
                             try
                             {
-                                await _client.SendTextMessageAsync(adminId, adminText, ParseMode.Html,
+                                await client.SendTextMessageAsync(adminId, adminText, ParseMode.Html,
                                     cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             catch (Exception e)
@@ -286,7 +283,7 @@ namespace MaximEmmBots.Services
             }
         }
 
-        public Task HandleError(Exception exception, CancellationToken cancellationToken)
+        public Task HandleError(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             _logger.LogError(exception, "Error occurred while handling an incoming update.");
             return Task.CompletedTask;
