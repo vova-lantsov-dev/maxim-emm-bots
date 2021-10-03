@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - actual
+
+jobs:
+  ubuntu-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+      - name: Setup .NET Core 3.1 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Build and publish .NET project
+        run: dotnet publish -o publish/ -c Release -r linux-x64
+      - name: Stop remote process
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST_ADDRESS }}
+          username: ${{ secrets.USER_NAME }}
+          password: ${{ secrets.USER_PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl stop ${{ secrets.SERVICE_NAME }}
+      - name: Deploy to server
+        uses: wangyucode/sftp-upload-action@v1.1
+        with:
+          host: ${{ secrets.HOST_ADDRESS }}
+          username: ${{ secrets.USER_NAME }}
+          password: ${{ secrets.USER_PASSWORD }}
+          port: ${{ secrets.PORT }}
+          localDir: 'publish'
+          remoteDir: ${{ secrets.REMOTE_DIR }}
+      - name: Start remote process
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST_ADDRESS }}
+          username: ${{ secrets.USER_NAME }}
+          password: ${{ secrets.USER_PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl start ${{ secrets.SERVICE_NAME }}
