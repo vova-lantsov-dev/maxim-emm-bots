@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Build and publish .NET project
-        run: dotnet publish -o publish/ -c Release -r linux-x64
+        run: dotnet publish MaximEmmBots/MaximEmmBots.csproj -o publish/ -c Release -r linux-x64
       - name: Stop remote process
         uses: appleboy/ssh-action@v0.1.4
         with:
