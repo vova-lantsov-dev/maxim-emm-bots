@@ -40,7 +40,7 @@ namespace MaximEmmBots.Services.DistributionBot
         }
 
         internal Task ExecuteManyAsync(ICollection<Restaurant> restaurants, CancellationToken stoppingToken,
-            int userId, DateTime? requestedDate = null)
+            long userId, DateTime? requestedDate = null)
         {
             if (restaurants.Count == 0)
                 return Task.CompletedTask;
@@ -50,7 +50,7 @@ namespace MaximEmmBots.Services.DistributionBot
         }
 
         internal async Task ExecuteAsync(Restaurant restaurant, CancellationToken stoppingToken,
-            DateTime? requestedDate = null, int userId = 0)
+            DateTime? requestedDate = null, long userId = 0L)
         {
             var forDate = requestedDate ?? _cultureService.NowFor(restaurant).AddDays(1d);
             var culture = _cultureService.CultureFor(restaurant);

@@ -11,7 +11,7 @@ namespace MaximEmmBots.Models.Json.Restaurants
 
         public long ChatId { get; set; }
 
-        public List<int> AdminIds { get; set; }
+        public List<long> AdminIds { get; set; }
         
         public char PlaceId { get; set; }
         

@@ -104,7 +104,7 @@ namespace MaximEmmBots.Services.MailBot
                                 {
                                     await _botClient.SendDocumentAsync(chatId,
                                             new InputOnlineFile(attachmentStream, attachmentPart.Filename.ToFileName()),
-                                            message, ParseMode.Markdown, cancellationToken: cancellationToken)
+                                            caption: message, parseMode: ParseMode.Markdown, cancellationToken: cancellationToken)
                                         .ConfigureAwait(false);
                                 }
                                 catch (Exception e)
@@ -145,11 +145,11 @@ namespace MaximEmmBots.Services.MailBot
                         {
                             try
                             {
-                                await _botClient.SendMediaGroupAsync(photos
-                                        .Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
-                                            new InputMediaPhoto(new InputMedia(item.content, item.filename))
-                                                {Caption = item.filename}),
-                                    chatId, cancellationToken: cancellationToken).ConfigureAwait(false);
+                                await _botClient.SendMediaGroupAsync(chatId,
+                                    photos.Select<(MemoryStream content, string filename), IAlbumInputMedia>(item =>
+                                        new InputMediaPhoto(new InputMedia(item.content, item.filename))
+                                            {Caption = item.filename}),
+                                    cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             catch (Exception e)
                             {

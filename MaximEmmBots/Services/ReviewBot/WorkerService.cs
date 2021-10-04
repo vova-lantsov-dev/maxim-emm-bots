@@ -191,15 +191,15 @@ namespace MaximEmmBots.Services.ReviewBot
                                         ? maxValueOfRating
                                         : -1,
                                     _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                                ParseMode.Html, notSentReview.Resource == "instagram",
+                                ParseMode.Html, disableWebPagePreview: notSentReview.Resource == "instagram",
                                 cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
                                     ? new InlineKeyboardMarkup(buttons)
                                     : null).ConfigureAwait(false);
 
                             if (notSentReview.Photos != null && notSentReview.Photos.Count > 1)
                             {
-                                await _client.SendMediaGroupAsync(notSentReview.Photos.Select(p =>
-                                    (IAlbumInputMedia) new InputMediaPhoto(new InputMedia(p))), chatId,
+                                await _client.SendMediaGroupAsync(chatId, notSentReview.Photos.Select(p =>
+                                    (IAlbumInputMedia) new InputMediaPhoto(new InputMedia(p))),
                                     cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                         }
