@@ -110,7 +110,10 @@ namespace MaximEmmBots.Services.ReviewBot
                             FileName = _data.ReviewBot.Script.FileName
                         };
                         var process = Process.Start(processInfo);
-                        process?.WaitForExit();
+                        if (!process!.WaitForExit(120_000))
+                        {
+                            process.Kill();
+                        }
                     }
                 }
             }, cancellationToken);
