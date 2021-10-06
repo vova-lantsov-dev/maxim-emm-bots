@@ -182,8 +182,7 @@ namespace MaximEmmBots.Services.ReviewBot
                         var chatId = restaurant.ChatId;
 
                         Message sentMessage;
-                        if (notSentReview.Photos == null || notSentReview.Photos.Count == 0 ||
-                            notSentReview.Photos.Count > 1)
+                        if (notSentReview.Photos == null || notSentReview.Photos.Count is 0 or > 1)
                         {
                             sentMessage = await _client.SendTextMessageAsync(chatId, notSentReview.ToString(culture, model,
                                     _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
@@ -196,25 +195,41 @@ namespace MaximEmmBots.Services.ReviewBot
                                     ? new InlineKeyboardMarkup(buttons)
                                     : null).ConfigureAwait(false);
 
-                            if (notSentReview.Photos != null && notSentReview.Photos.Count > 1)
+                            if (notSentReview.Photos is { Count: > 1 })
                             {
-                                await _client.SendMediaGroupAsync(chatId, notSentReview.Photos.Select(p =>
-                                    (IAlbumInputMedia) new InputMediaPhoto(new InputMedia(p))),
-                                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                                try
+                                {
+                                    await _client.SendMediaGroupAsync(chatId, notSentReview.Photos.Select(p =>
+                                            (IAlbumInputMedia)new InputMediaPhoto(new InputMedia(p))),
+                                        cancellationToken: cancellationToken).ConfigureAwait(false);
+                                }
+                                catch
+                                {
+                                    // silent
+                                }
                             }
                         }
                         else
                         {
-                            sentMessage = await _client.SendPhotoAsync(chatId, notSentReview.Photos[0],
-                                notSentReview.ToString(culture, model,
-                                    _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
-                                        out var maxValueOfRating)
-                                        ? maxValueOfRating
-                                        : -1,
-                                    _data.ReviewBot.PreferAvatarOverProfileLinkFor.Contains(notSentReview.Resource)),
-                                ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
-                                    ? new InlineKeyboardMarkup(buttons)
-                                    : null).ConfigureAwait(false);
+                            try
+                            {
+                                sentMessage = await _client.SendPhotoAsync(chatId, notSentReview.Photos[0],
+                                    notSentReview.ToString(culture, model,
+                                        _data.ReviewBot.MaxValuesOfRating.TryGetValue(notSentReview.Resource,
+                                            out var maxValueOfRating)
+                                            ? maxValueOfRating
+                                            : -1,
+                                        _data.ReviewBot.PreferAvatarOverProfileLinkFor
+                                            .Contains(notSentReview.Resource)),
+                                    ParseMode.Html, cancellationToken: cancellationToken, replyMarkup: buttons.Count > 0
+                                        ? new InlineKeyboardMarkup(buttons)
+                                        : null).ConfigureAwait(false);
+                            }
+                            catch
+                            {
+                                // silent
+                                continue;
+                            }
                         }
 
                         if (notSentReview.Resource == "google")
