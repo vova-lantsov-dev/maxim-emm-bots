@@ -110,19 +110,7 @@ namespace MaximEmmBots.Services.ReviewBot
                             FileName = _data.ReviewBot.Script.FileName
                         };
                         var process = Process.Start(processInfo);
-                        if (process!.WaitForExit(120_000))
-                            continue;
-                        
-                        // Running out of 2-minute timeout
-                        // Killing the process and related docker container
-                        process.Kill();
-                        processInfo = new ProcessStartInfo
-                        {
-                            WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
-                            Arguments = "stop scrapy",
-                            FileName = _data.ReviewBot.Script.FileName
-                        };
-                        Process.Start(processInfo)!.WaitForExit();
+                        process!.WaitForExit();
                     }
                 }
             }, cancellationToken);

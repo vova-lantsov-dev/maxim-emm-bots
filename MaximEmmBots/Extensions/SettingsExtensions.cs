@@ -11,12 +11,17 @@ namespace MaximEmmBots.Extensions
     internal static class SettingsExtensions
     {
         private static readonly string BasePath = Directory.GetCurrentDirectory();
+
+        private static readonly JsonSerializerOptions Options = new()
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
         
         internal static async Task<Data> LoadDataAsync(bool isDevelopment)
         {
             var settingsFilePath = Path.Combine(BasePath, !isDevelopment ? "settings.json" : "settings.Development.json");
             await using var settingsFile = File.OpenRead(settingsFilePath);
-            return await JsonSerializer.DeserializeAsync<Data>(settingsFile);
+            return await JsonSerializer.DeserializeAsync<Data>(settingsFile, Options);
         }
 
         internal static async IAsyncEnumerable<Restaurant> YieldRestaurantsAsync(bool isDevelopment)
@@ -26,7 +31,7 @@ namespace MaximEmmBots.Extensions
                 .Where(file => file.EndsWith("Development.json") == isDevelopment))
             {
                 await using var fileWithRestaurant = File.OpenRead(filePath);
-                var restaurant = await JsonSerializer.DeserializeAsync<Restaurant>(fileWithRestaurant);
+                var restaurant = await JsonSerializer.DeserializeAsync<Restaurant>(fileWithRestaurant, Options);
                 restaurant.Name = Path.GetFileNameWithoutExtension(filePath);
                 yield return restaurant;
             }
@@ -39,7 +44,7 @@ namespace MaximEmmBots.Extensions
             {
                 await using var languageFile = File.OpenRead(languageFilePath);
                 var languageName = Path.GetFileNameWithoutExtension(languageFilePath);
-                var languageModel = await JsonSerializer.DeserializeAsync<LocalizationModel>(languageFile);
+                var languageModel = await JsonSerializer.DeserializeAsync<LocalizationModel>(languageFile, Options);
                 yield return (languageName, languageModel);
             }
         }
