@@ -119,7 +119,7 @@ namespace MaximEmmBots.Services.ReviewBot
                         processInfo = new ProcessStartInfo
                         {
                             WorkingDirectory = _data.ReviewBot.Script.WorkingDirectory,
-                            Arguments = "kill scrapy",
+                            Arguments = "stop scrapy",
                             FileName = _data.ReviewBot.Script.FileName
                         };
                         Process.Start(processInfo);
