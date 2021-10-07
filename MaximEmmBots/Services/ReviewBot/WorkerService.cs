@@ -122,7 +122,7 @@ namespace MaximEmmBots.Services.ReviewBot
                             Arguments = "stop scrapy",
                             FileName = _data.ReviewBot.Script.FileName
                         };
-                        Process.Start(processInfo);
+                        Process.Start(processInfo)!.WaitForExit();
                     }
                 }
             }, cancellationToken);
