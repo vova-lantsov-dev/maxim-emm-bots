@@ -7,7 +7,7 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Sheets.v4" Version="1.55.0.2371" />
-      <PackageReference Include="Hangfire.Core" Version="1.7.25" />
+      <PackageReference Include="Hangfire.Core" Version="1.7.26" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
